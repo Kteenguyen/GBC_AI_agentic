@@ -54,6 +54,7 @@ export function auditTabConfig(tabKey: string, config: any): TabAuditResult {
     }
     case 'GIT': {
       const fields = [
+        { key: 'Đường dẫn Remote Repo (remoteUrl)', val: config.git?.remoteUrl },
         { key: 'Git User Name', val: config.git?.defaultUserName },
         { key: 'Git User Email', val: config.git?.defaultUserEmail }
       ];
@@ -124,10 +125,9 @@ export function auditTabConfig(tabKey: string, config: any): TabAuditResult {
     }
     case 'TELEMETRY': {
       const fields = [
-        { key: 'Prometheus URL', val: config.telemetry?.prometheusUrl },
-        { key: 'Grafana URL', val: config.telemetry?.grafanaUrl },
-        { key: 'Alert Webhook URL', val: config.telemetry?.alertWebhookUrl },
-        { key: 'Email Recipient', val: config.telemetry?.emailRecipient }
+        { key: 'Prometheus Server URL', val: config.telemetry?.prometheusUrl },
+        { key: 'Grafana Dashboard URL', val: config.telemetry?.grafanaUrl },
+        { key: 'Alert Webhook URL', val: config.telemetry?.alertWebhookUrl }
       ];
       const missing = fields.filter(f => !isValValid(f.val)).map(f => f.key);
       return {
@@ -151,10 +151,13 @@ export const DEFAULT_CONFIG = {
     platform: "windows"
   },
   git: {
-    defaultUserName: "Ktee",
-    defaultUserEmail: "kteenguyen@gmail.com",
+    defaultUserName: "Kteenguyen",
+    defaultUserEmail: "nguyenkhoatai2003@gmail.com",
+    remoteUrl: "https://github.com/Kteenguyen/GBC_AI_agentic.git",
+    repoName: "GBC_AI_agentic",
     authType: "HTTPS",
     defaultBranch: "main",
+    personalAccessToken: "",
     autoCommitOnStagePass: false
   },
   ci: {
@@ -658,37 +661,90 @@ export default function InfrastructureConfigModal({
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-3 pt-2">
                       <div>
-                        <label className="text-xs text-slate-300 font-bold block mb-1">Git User Name:</label>
+                        <label className="text-xs text-slate-200 font-bold block mb-1">
+                          Đường Dẫn Remote Repository (Git Remote URL):
+                        </label>
                         <input
                           type="text"
-                          value={config.git?.defaultUserName || ''}
+                          value={config.git?.remoteUrl || ''}
                           onChange={(e) => setConfig({
                             ...config,
-                            git: { ...config.git, defaultUserName: e.target.value }
+                            git: { ...config.git, remoteUrl: e.target.value }
                           })}
-                          className={`w-full bg-[#0E1526] border rounded-xl px-3 py-2 text-xs text-purple-300 focus:outline-none transition ${
-                            isFieldConfigured(config.git?.defaultUserName) ? 'border-slate-700' : 'border-slate-800'
+                          className={`w-full bg-[#0E1526] border rounded-xl px-3.5 py-2 text-xs font-mono text-cyan-300 focus:outline-none transition ${
+                            isFieldConfigured(config.git?.remoteUrl) ? 'border-slate-700 focus:border-cyan-400' : 'border-amber-700/80 focus:border-amber-500'
                           }`}
-                          placeholder="Ví dụ: Ktee"
+                          placeholder="Ví dụ: https://github.com/Kteenguyen/GBC_AI_agentic.git hoặc git@github.com:..."
                         />
+                        <span className="text-[10px] text-slate-400 block mt-1">
+                          Đường dẫn kho mã nguồn chính thức trên GitHub, GitLab, hoặc Bitbucket.
+                        </span>
                       </div>
 
-                      <div>
-                        <label className="text-xs text-slate-300 font-bold block mb-1">Git User Email:</label>
-                        <input
-                          type="email"
-                          value={config.git?.defaultUserEmail || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            git: { ...config.git, defaultUserEmail: e.target.value }
-                          })}
-                          className={`w-full bg-[#0E1526] border rounded-xl px-3 py-2 text-xs text-purple-300 focus:outline-none transition ${
-                            isFieldConfigured(config.git?.defaultUserEmail) ? 'border-slate-700' : 'border-slate-800'
-                          }`}
-                          placeholder="email@company.com"
-                        />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-slate-300 font-bold block mb-1">Tên Kho Chứa (Repo Name):</label>
+                          <input
+                            type="text"
+                            value={config.git?.repoName || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              git: { ...config.git, repoName: e.target.value }
+                            })}
+                            className="w-full bg-[#0E1526] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none"
+                            placeholder="GBC_AI_agentic"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-slate-300 font-bold block mb-1">Personal Access Token / SSH Key (Tùy chọn):</label>
+                          <input
+                            type="password"
+                            value={config.git?.personalAccessToken || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              git: { ...config.git, personalAccessToken: e.target.value }
+                            })}
+                            className="w-full bg-[#0E1526] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none"
+                            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-slate-300 font-bold block mb-1">Git User Name:</label>
+                          <input
+                            type="text"
+                            value={config.git?.defaultUserName || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              git: { ...config.git, defaultUserName: e.target.value }
+                            })}
+                            className={`w-full bg-[#0E1526] border rounded-xl px-3 py-2 text-xs text-purple-300 focus:outline-none transition ${
+                              isFieldConfigured(config.git?.defaultUserName) ? 'border-slate-700' : 'border-slate-800'
+                            }`}
+                            placeholder="Ví dụ: Kteenguyen"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-slate-300 font-bold block mb-1">Git User Email:</label>
+                          <input
+                            type="email"
+                            value={config.git?.defaultUserEmail || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              git: { ...config.git, defaultUserEmail: e.target.value }
+                            })}
+                            className={`w-full bg-[#0E1526] border rounded-xl px-3 py-2 text-xs text-purple-300 focus:outline-none transition ${
+                              isFieldConfigured(config.git?.defaultUserEmail) ? 'border-slate-700' : 'border-slate-800'
+                            }`}
+                            placeholder="nguyenkhoatai2003@gmail.com"
+                          />
+                        </div>
                       </div>
                     </div>
 
