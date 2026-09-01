@@ -1148,7 +1148,7 @@ export default function WorkflowPage() {
               className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-blue-500/40 shadow-sm transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Kho Nền Tảng Open Source</span>
+              <span>Kho Nền Tảng Open Source</span>
             </button>
 
             {/* Documentation Guides */}

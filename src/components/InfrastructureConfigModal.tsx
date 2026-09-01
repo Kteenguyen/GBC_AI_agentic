@@ -555,7 +555,7 @@ export default function InfrastructureConfigModal({
                   className="w-full py-2 px-3 rounded-xl text-xs font-bold text-blue-300 bg-blue-950/60 hover:bg-blue-900/80 border border-blue-500/30 flex items-center justify-center gap-2 transition"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>+ Thêm Nền Tảng Khác</span>
+                  <span>Thêm Nền Tảng Khác</span>
                 </button>
               </div>
             )}
