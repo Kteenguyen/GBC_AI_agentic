@@ -20,6 +20,7 @@ import {
   GitPullRequest,
   ExternalLink,
   Globe,
+  Settings,
   Settings2,
   BookOpen,
   Users,
@@ -1165,18 +1166,19 @@ export default function WorkflowPage() {
               <span>Hướng Dẫn Cấu Hình</span>
             </button>
 
-            {/* Infrastructure Config Modal */}
+            {/* Infrastructure Config Gear Button */}
             <button
               type="button"
               onClick={() => setIsConfigModalOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border ${
+              title="Cấu Hình Hạ Tầng & API Tokens"
+              aria-label="Cấu Hình Hạ Tầng"
+              className={`p-2 rounded-lg transition cursor-pointer border shadow-xs flex items-center justify-center group ${
                 isLight 
-                  ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
-                  : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700'
+                  ? 'bg-white hover:bg-slate-100 text-slate-700 border-[#E2DDD5] hover:border-blue-400 hover:text-blue-600'
+                  : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700 hover:border-cyan-400 hover:text-cyan-400'
               }`}
             >
-              <Settings2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>Cấu Hình Hạ Tầng</span>
+              <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:rotate-90 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-transform duration-300" />
             </button>
           </div>
         </div>
