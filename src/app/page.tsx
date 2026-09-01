@@ -60,7 +60,7 @@ import { AgentLogInspectorModal } from '@/components/AgentLogInspectorModal';
 import { QATestingPanel } from '@/components/QATestingPanel';
 import { GitHubTrendingHunter } from '@/components/GitHubTrendingHunter';
 import { AgentSoloArenaModal } from '@/components/AgentSoloArenaModal';
-import { SQUAD_AGENTS } from '@/lib/constants';
+import { SQUAD_AGENTS, BASELINE_GITHUB_REPOS } from '@/lib/constants';
 import { 
   AgentRoleProfile, 
   AgentLogStep, 
@@ -207,7 +207,7 @@ export default function WorkflowPage() {
   ]);
 
   // Solo Arena State
-  const [trendingRepos, setTrendingRepos] = useState<GitHubTrendingRepo[]>([]);
+  const [trendingRepos, setTrendingRepos] = useState<GitHubTrendingRepo[]>(BASELINE_GITHUB_REPOS);
   const [activeSoloBattle, setActiveSoloBattle] = useState<SoloBattleResult | null>(null);
   const [soloBattleRepo, setSoloBattleRepo] = useState<GitHubTrendingRepo | null>(null);
   const [soloBattleAgent, setSoloBattleAgent] = useState<AgentRoleProfile | null>(null);
@@ -253,7 +253,8 @@ export default function WorkflowPage() {
       
       if (trendingRes) {
         const trendingData = await trendingRes.json();
-        if (trendingData.repos) setTrendingRepos(trendingData.repos);
+        const list = trendingData.data || trendingData.repos || [];
+        if (list.length > 0) setTrendingRepos(list);
       }
 
       if (configData.success && configData.config) {
@@ -1913,6 +1914,7 @@ export default function WorkflowPage() {
           <div className="space-y-6">
             <GitHubTrendingHunter
               repos={trendingRepos}
+              theme={theme}
               onTriggerSoloBattle={(repo) => {
                 const matchedAgent = squadAgents.find(a => a.category === repo.roleFitCategory) || squadAgents[0];
                 setSoloBattleRepo(repo);
