@@ -1943,6 +1943,7 @@ export default function WorkflowPage() {
           <div className="space-y-6">
             <QATestingPanel
               testResults={qaTestResults}
+              theme={theme}
               onRunAllTests={() => {
                 setQaTestResults(prev => prev.map(t => ({ ...t, status: 'PASS' })));
               }}
