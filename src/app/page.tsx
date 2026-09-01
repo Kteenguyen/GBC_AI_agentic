@@ -60,6 +60,8 @@ import { AgentLogInspectorModal } from '@/components/AgentLogInspectorModal';
 import { QATestingPanel } from '@/components/QATestingPanel';
 import { GitHubTrendingHunter } from '@/components/GitHubTrendingHunter';
 import { AgentSoloArenaModal } from '@/components/AgentSoloArenaModal';
+import { MobileBottomNavigation } from '@/components/MobileBottomNavigation';
+import { MobileWorkflowTimeline } from '@/components/MobileWorkflowTimeline';
 import { SQUAD_AGENTS, BASELINE_GITHUB_REPOS } from '@/lib/constants';
 import { 
   AgentRoleProfile, 
@@ -1267,8 +1269,17 @@ export default function WorkflowPage() {
               </div>
             </div>
 
-            {/* Visual Canvas Board with Drop Targets */}
-            <div className={`w-full rounded-3xl p-6 sm:p-10 shadow-xl overflow-x-auto relative border transition ${
+            {/* Mobile Touch-First Step-by-Step Timeline (Visible on < 768px screens) */}
+            <MobileWorkflowTimeline
+              nodes={nodes}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+              renderLogo={renderOfficialLogo}
+              theme={theme}
+            />
+
+            {/* Desktop Visual Canvas Board with Drop Targets (Visible on >= 768px screens) */}
+            <div className={`hidden md:block w-full rounded-3xl p-6 sm:p-10 shadow-xl overflow-x-auto relative border transition ${
               isLight
                 ? 'bg-white border-[#E2DDD5]'
                 : 'bg-[#090E1A] border-[#1E293B]'
@@ -2021,9 +2032,21 @@ export default function WorkflowPage() {
       }`}>
         <div className="max-w-[1550px] mx-auto flex items-center justify-between">
           <span>Dự án: <strong className={isLight ? 'text-blue-700' : 'text-cyan-300'}>{selectedProject?.name || 'Workflow'}</strong> • Git Account: <strong className={isLight ? 'text-purple-700' : 'text-purple-300'}>{selectedProject?.gitUserName}</strong> • Remote: <strong className="text-emerald-600 dark:text-emerald-400 font-mono">{selectedProject?.remoteUrl}</strong></span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-bold">100% Real Git Config • Warm Beige Light Theme</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-bold hidden sm:inline">100% Real Git Config • Warm Beige Light Theme</span>
         </div>
       </footer>
+
+      {/* Touch-First Mobile Bottom Navigation Bar (< 768px) */}
+      <MobileBottomNavigation
+        activeTab={activeMainTab}
+        onTabChange={setActiveMainTab}
+        onRunPipeline={handlePushCodeRunAll}
+        isRunning={isRunningAll}
+        theme={theme}
+        onToggleTheme={() => setTheme(curr => curr === 'light' ? 'dark' : 'light')}
+        onOpenConfig={() => setIsConfigModalOpen(true)}
+        onOpenDocs={() => setIsDocsModalOpen(true)}
+      />
 
     </div>
   );
