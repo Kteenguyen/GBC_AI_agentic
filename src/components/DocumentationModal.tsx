@@ -24,6 +24,7 @@ import {
   RefreshCw,
   Folder
 } from 'lucide-react';
+import { BUNDLED_TECHNICAL_DOCS, DOC_CATEGORIES } from '@/lib/docsData';
 
 export interface DocItem {
   id: string;
@@ -48,20 +49,12 @@ export default function DocumentationModal({
   onClose,
   initialDocId
 }: DocumentationModalProps) {
-  const [docs, setDocs] = useState<DocItem[]>([]);
-  const [categories, setCategories] = useState<{ key: string; name: string }[]>([
-    { key: 'all', name: 'Tất Cả' },
-    { key: 'git', name: 'Git' },
-    { key: 'ci', name: 'CI' },
-    { key: 'security', name: 'Bảo Mật' },
-    { key: 'docker', name: 'Docker' },
-    { key: 'k8s', name: 'K8s' },
-    { key: 'telemetry', name: 'Giám Sát' }
-  ]);
+  const [docs, setDocs] = useState<DocItem[]>(BUNDLED_TECHNICAL_DOCS as DocItem[]);
+  const [categories, setCategories] = useState<{ key: string; name: string }[]>(DOC_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedDocId, setSelectedDocId] = useState<string>('git-setup');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedDocId, setSelectedDocId] = useState<string>(BUNDLED_TECHNICAL_DOCS[0]?.id || '01-workspace-git-setup');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedDoc, setCopiedDoc] = useState<boolean>(false);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
 
@@ -78,23 +71,21 @@ export default function DocumentationModal({
   }, [initialDocId]);
 
   const fetchDocs = async () => {
-    setIsLoading(true);
     try {
       const res = await fetch('/api/docs');
       const data = await res.json();
-      if (data.success && data.docs) {
-        setDocs(data.docs);
+      const loadedDocs = data.docs || data.data;
+      if (data.success && Array.isArray(loadedDocs) && loadedDocs.length > 0) {
+        setDocs(loadedDocs);
         if (data.categories) {
           setCategories(data.categories);
         }
-        if (!selectedDocId || !data.docs.find((d: DocItem) => d.id === selectedDocId)) {
-          setSelectedDocId(data.docs[0]?.id || 'git-setup');
+        if (!selectedDocId || !loadedDocs.find((d: DocItem) => d.id === selectedDocId)) {
+          setSelectedDocId(loadedDocs[0]?.id || '01-workspace-git-setup');
         }
       }
     } catch (e) {
       console.error('Error fetching documentation:', e);
-    } finally {
-      setIsLoading(false);
     }
   };
 
