@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
       model = 'Antigravity Flash 3.7', 
       targetAgent = 'Supreme NLP Leader', 
       apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+      nineRouterUrl = process.env.NINE_ROUTER_URL || process.env.OPENAI_BASE_URL,
+      nineRouterApiKey = process.env.NINE_ROUTER_API_KEY || process.env.OPENAI_API_KEY || 'sk-9router',
       history = [] 
     } = body;
 
@@ -63,12 +65,7 @@ export async function POST(req: NextRequest) {
     const lowerPrompt = trimmedPrompt.toLowerCase();
     const timestamp = new Date().toLocaleTimeString('vi-VN');
 
-    // -------------------------------------------------------------
-    // OPTION A: CALL REAL GOOGLE GEMINI / ANTIGRAVITY API (IF API KEY IS PRESENT)
-    // -------------------------------------------------------------
-    if (apiKey) {
-      try {
-        const systemInstruction = `Bạn là ${targetAgent}, chỉ huy cấp cao trong hệ sinh thái 13 AI Subagents Tự Hành của Antigravity AI Engine.
+    const systemInstruction = `Bạn là ${targetAgent}, chỉ huy cấp cao trong hệ sinh thái 13 AI Subagents Tự Hành của Antigravity AI Engine.
 Ngữ cảnh dự án hiện tại:
 - Tên dự án: ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoName})
 - Git Repository: ${LIVE_PROJECT_CONTEXT.repoUrl} (Branch: ${LIVE_PROJECT_CONTEXT.branch})
@@ -79,6 +76,67 @@ Ngữ cảnh dự án hiện tại:
 
 Hãy trả lời trực tiếp, thông minh, sâu sắc, thực tế và chính xác bằng Tiếng Việt. KHÔNG DÙNG EMOJI. Định dạng Markdown rõ ràng, có code block nếu cần.`;
 
+    // -------------------------------------------------------------
+    // OPTION A: 9ROUTER SMART MULTI-MODEL GATEWAY (OPENAI COMPATIBLE)
+    // -------------------------------------------------------------
+    if (nineRouterUrl) {
+      try {
+        const cleanBaseUrl = nineRouterUrl.replace(/\/+$/, '');
+        const endpointUrl = cleanBaseUrl.endsWith('/chat/completions') 
+          ? cleanBaseUrl 
+          : `${cleanBaseUrl}/chat/completions`;
+
+        // Map client model name to standard 9router model ID
+        let mappedModel = 'gemini-2.0-flash';
+        if (model.toLowerCase().includes('pro')) mappedModel = 'gemini-1.5-pro';
+        else if (model.toLowerCase().includes('deepseek')) mappedModel = 'deepseek-r1';
+        else if (model.toLowerCase().includes('claude')) mappedModel = 'claude-3-7-sonnet';
+        else if (model.toLowerCase().includes('gpt')) mappedModel = 'gpt-4o';
+
+        const nineRes = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${nineRouterApiKey}`
+          },
+          body: JSON.stringify({
+            model: mappedModel,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              ...history.map((h: any) => ({ role: h.role, content: h.content })),
+              { role: 'user', content: trimmedPrompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 2048
+          })
+        });
+
+        const nineData = await nineRes.json();
+        const nineReply = nineData.choices?.[0]?.message?.content;
+
+        if (nineReply) {
+          const responseMessage: ChatMessage = {
+            id: `msg-${Date.now()}`,
+            role: 'assistant',
+            content: nineReply,
+            timestamp,
+            targetAgent,
+            model: `9Router (${mappedModel})`,
+            thinking: `[9Router Live Gateway Routing - Model: ${mappedModel}]\n1. Đã kết nối thành công tới 9Router Hub (${cleanBaseUrl}).\n2. Smart auto-fallback kích hoạt, định tuyến qua Provider hoạt động tốt nhất.\n3. Nhận phản hồi LLM chính xác và đồng bộ ngữ cảnh dự án.`,
+            dispatchedAgents: [targetAgent]
+          };
+          return NextResponse.json({ success: true, message: responseMessage });
+        }
+      } catch (nineErr) {
+        console.warn('Lỗi kết nối 9Router Gateway, chuyển sang Provider kế tiếp:', nineErr);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // OPTION B: CALL REAL GOOGLE GEMINI / ANTIGRAVITY API (IF API KEY IS PRESENT)
+    // -------------------------------------------------------------
+    if (apiKey) {
+      try {
         const geminiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
           {
@@ -112,7 +170,7 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, thực tế và chính 
             timestamp,
             targetAgent,
             model: `Antigravity Cloud (${model})`,
-            thinking: `[Antigravity Live Inference - Model: ${model}]\n1. Đã kết nối thành công tới Gemini API Server.\n2. Tổng hợp ngữ cảnh dự án ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoUrl}).\n3. Trả về kết quả trực tiếp từ LLM.`,
+            thinking: `[Antigravity Live Inference - Model: ${model}]\n1. Đã kết nối thành công tới Gemini API Server.\n2. Tổng hợp ngữ cảnh dự án ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoName}).\n3. Trả về kết quả trực tiếp từ LLM.`,
             dispatchedAgents: [targetAgent]
           };
           return NextResponse.json({ success: true, message: responseMessage });
