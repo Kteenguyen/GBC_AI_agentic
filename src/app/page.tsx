@@ -1223,7 +1223,7 @@ export default function WorkflowPage() {
       </div>
 
       {/* 2. MAIN CONTENT VIEW SWITCHER */}
-      <main className="max-w-[1550px] w-full mx-auto p-4 sm:p-6 space-y-6 flex-1">
+      <main className="max-w-[1550px] w-full mx-auto p-4 sm:p-6 space-y-6 flex-1 pb-20 md:pb-6">
         
         {/* VIEW 1: VISUAL WORKFLOW WITH DRAG-AND-DROP PALETTE */}
         {activeMainTab === 'WORKFLOW' && (
@@ -2027,7 +2027,7 @@ export default function WorkflowPage() {
       />
 
       {/* Footer */}
-      <footer className={`w-full py-3 px-6 text-center text-xs font-mono border-t transition ${
+      <footer className={`hidden md:block w-full py-3 px-6 text-center text-xs font-mono border-t transition ${
         isLight ? 'bg-[#EFECE6] border-[#E2DDD5] text-slate-600' : 'bg-[#070B14] border-[#1E293B] text-slate-500'
       }`}>
         <div className="max-w-[1550px] mx-auto flex items-center justify-between">
