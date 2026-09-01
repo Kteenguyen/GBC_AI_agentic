@@ -29,7 +29,9 @@ import {
   Move,
   Plus,
   Sun,
-  Moon
+  Moon,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 
 import {
@@ -52,6 +54,7 @@ import ArtifactInspectorModal from '@/components/ArtifactInspectorModal';
 import InfrastructureConfigModal, { auditTabConfig } from '@/components/InfrastructureConfigModal';
 import DocumentationModal from '@/components/DocumentationModal';
 import DynamicToolCatalogModal from '@/components/DynamicToolCatalogModal';
+import { AgentSquadChatTerminal } from '@/components/AgentSquadChatTerminal';
 import { DevOpsToolDefinition, OPEN_SOURCE_DEVOPS_CATALOG } from '@/lib/devopsCatalog';
 import ProjectDropdown from '@/components/ProjectDropdown';
 import { subscribeRealtimeUpdate, emitRealtimeUpdate } from '@/lib/data';
@@ -136,6 +139,18 @@ export default function WorkflowPage() {
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
+  // Global Keyboard Shortcut: Ctrl + K (or Cmd + K) to toggle AI Prompt Terminal
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsChatOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   const isLight = theme === 'light';
 
   // Main Tab Navigation
@@ -157,6 +172,7 @@ export default function WorkflowPage() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
   const [isDocsModalOpen, setIsDocsModalOpen] = useState<boolean>(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [activePipelineToolIds, setActivePipelineToolIds] = useState<string[]>([]);
 
   // Drag and drop states for Board & Nodes
@@ -1118,6 +1134,18 @@ export default function WorkflowPage() {
 
           {/* Top Bar Config Modals Triggers & THEME SWITCHER */}
           <div className="flex items-center gap-2 flex-wrap text-xs">
+            {/* AI Prompt Copilot Terminal Button */}
+            <button
+              type="button"
+              onClick={() => setIsChatOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm shadow-blue-500/20 transition cursor-pointer active:scale-95"
+              title="Mở AI Prompt Terminal (Ctrl + K)"
+            >
+              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+              <span>Prompt AI (Flash 3.7)</span>
+              <span className="hidden sm:inline text-[9.5px] font-mono bg-white/20 px-1 py-0.2 rounded">Ctrl+K</span>
+            </button>
+
             {/* THEME TOGGLE (LIGHT BEIGE VS DARK) */}
             <button
               type="button"
@@ -2038,6 +2066,27 @@ export default function WorkflowPage() {
         </div>
       </footer>
 
+      {/* Floating AI Prompt Copilot Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsChatOpen(true)}
+        className="fixed bottom-20 md:bottom-8 right-5 z-40 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20"
+        title="Mở AI Prompt Terminal (Ctrl + K)"
+      >
+        <Sparkles className="w-4 h-4 animate-spin" />
+        <span className="tracking-wide">Prompt AI Squad</span>
+        <span className="hidden sm:inline text-[10px] font-mono bg-white/20 px-1.5 py-0.5 rounded border border-white/30">Ctrl+K</span>
+      </button>
+
+      {/* Agent Squad Chat Terminal */}
+      <AgentSquadChatTerminal
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onOpenTab={setActiveMainTab}
+        onRunPipeline={handlePushCodeRunAll}
+        theme={theme}
+      />
+
       {/* Touch-First Mobile Bottom Navigation Bar (< 768px) */}
       <MobileBottomNavigation
         activeTab={activeMainTab}
@@ -2048,6 +2097,7 @@ export default function WorkflowPage() {
         onToggleTheme={() => setTheme(curr => curr === 'light' ? 'dark' : 'light')}
         onOpenConfig={() => setIsConfigModalOpen(true)}
         onOpenDocs={() => setIsDocsModalOpen(true)}
+        onOpenChat={() => setIsChatOpen(true)}
       />
 
     </div>
