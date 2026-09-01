@@ -37,7 +37,7 @@ export const MobileBottomNavigation: React.FC<MobileBottomNavigationProps> = ({
   const isLight = theme === 'light';
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 select-none pointer-events-auto">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9999] select-none pointer-events-auto">
       {/* Main Touch-First Thumb Zone Navigation Bar */}
       <nav className={`px-2 py-2 border-t backdrop-blur-xl transition-colors shadow-2xl ${
         isLight 
