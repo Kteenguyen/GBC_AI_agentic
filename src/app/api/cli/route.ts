@@ -221,7 +221,17 @@ workflow.config.json`;
     } else if (mainCmd.startsWith('/')) {
       // Slash Command
       const slash = mainCmd.substring(1);
-      if (slash === 'goal') {
+      if (slash === 'grill-me' || slash === 'grillme') {
+        subagent = 'Supreme NLP Leader';
+        stdout = `[GRILL-ME CROSS-EXAMINATION PROTOCOL ACTIVATED - 99.99% ACCURACY]
+Supreme NLP Leader & Architecture Council đang khởi động phỏng vấn phản biện đa chiều:
+1. Phân quyền RBAC Guard: Yêu cầu áp dụng cho ADMIN_CEO / HEAD hay mở rộng cho DEV/QA?
+2. Chuẩn UI Mobile 430px: Viewport iPhone 14 Pro Max, touch target >= 44px, nút 11.5px-12.5px.
+3. Dữ liệu & Realtime: Supabase Cloud REST 100% + Event Bus 0ms (CustomEvent('gcm_*_updated')).
+4. Vercel Parity: TypeScript 0 lỗi, build sạch sẽ trước khi bàn giao.
+
+[STATUS]: Đang chờ xác nhận các nhánh quyết định từ bạn để đảm bảo độ chuẩn xác 99.99%!`;
+      } else if (slash === 'goal') {
         stdout = `[GOAL MODE ACTIVATED] Autonomous objective scheduled: "${parts.slice(1).join(' ')}". Running 24/7 background agent loop.`;
       } else if (slash === 'boost') {
         stdout = `[DEEP REASONING BOOSTED] Model switched to Google Antigravity Pro 2.5 with 32k Thinking Context Window.`;

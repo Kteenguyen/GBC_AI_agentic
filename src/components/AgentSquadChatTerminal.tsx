@@ -42,6 +42,7 @@ const AVAILABLE_MODELS = [
 ];
 
 const QUICK_COMMANDS = [
+  { cmd: '/grill-me', label: '/grill-me Phản Biện 99.99%', prompt: '/grill-me Phỏng vấn đào sâu, phản biện đa chiều về kiến trúc, RBAC và UI 430px trước khi triển khai' },
   { cmd: '/run-pipeline', label: 'Chạy Pipeline 8 Bước', prompt: 'Kích hoạt chạy toàn bộ Pipeline DevOps 8 bước từ Dev đến Kubernetes' },
   { cmd: '/qa-test', label: 'Kiểm Thử QA 430px', prompt: 'Chạy toàn bộ bài test QA Playwright mobile viewport 430px và kiểm tra lỗi' },
   { cmd: '/solo-battle', label: 'So Găng Solo 1v1', prompt: 'Quét top 10 GitHub Trending và cử Agent ra solo 1v1 với repo AI xuất sắc nhất' },
@@ -49,6 +50,7 @@ const QUICK_COMMANDS = [
 ];
 
 const CLI_SHORTCUTS = [
+  { label: '/grill-me', cmd: '/grill-me' },
   { label: 'agy status', cmd: 'agy status' },
   { label: 'agy agents list', cmd: 'agy agents list' },
   { label: 'agy pipeline run', cmd: 'agy pipeline run' },

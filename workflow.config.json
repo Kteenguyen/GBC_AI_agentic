@@ -7,13 +7,10 @@
     "platform": "windows"
   },
   "git": {
-    "defaultUserName": "Kteenguyen",
-    "defaultUserEmail": "nguyenkhoatai2003@gmail.com",
-    "remoteUrl": "https://github.com/Kteenguyen/GBC_AI_agentic.git",
-    "repoName": "GBC_AI_agentic",
+    "defaultUserName": "Ktee",
+    "defaultUserEmail": "kteenguyen@gmail.com",
     "authType": "HTTPS",
     "defaultBranch": "main",
-    "personalAccessToken": "",
     "autoCommitOnStagePass": false
   },
   "ci": {
@@ -63,6 +60,6 @@
     "prometheusUrl": "",
     "grafanaUrl": "",
     "alertWebhookUrl": "",
-    "emailRecipient": "nguyenkhoatai2003@gmail.com"
+    "emailRecipient": "kteenguyen@gmail.com"
   }
 }
