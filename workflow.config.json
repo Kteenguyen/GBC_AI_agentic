@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0",
+  "name": "Antigravity Open Workflow Engine",
+  "workspace": {
+    "rootDir": "C:\\Users\\ADMIN\\OneDrive\\Documents\\Work",
+    "autoScanSubdirectories": true,
+    "platform": "windows"
+  },
+  "git": {
+    "defaultUserName": "Ktee",
+    "defaultUserEmail": "kteenguyen@gmail.com",
+    "authType": "HTTPS",
+    "defaultBranch": "main",
+    "autoCommitOnStagePass": false
+  },
+  "ci": {
+    "provider": "Jenkins CI",
+    "serverUrl": "",
+    "userName": "",
+    "apiToken": "",
+    "jobPrefix": "pipeline-"
+  },
+  "security": {
+    "owasp": {
+      "enabled": false,
+      "scannerPath": "",
+      "failOnCvss": 7
+    },
+    "sonarQube": {
+      "enabled": false,
+      "serverUrl": "",
+      "projectToken": "",
+      "qualityGateRequired": "PASSED"
+    },
+    "trivy": {
+      "enabled": false,
+      "scanType": "fs,secret",
+      "severity": "CRITICAL,HIGH"
+    }
+  },
+  "docker": {
+    "socketPath": "",
+    "registryUrl": "",
+    "repositoryNamespace": "",
+    "autoTagVersion": true
+  },
+  "gitops": {
+    "argoCdUrl": "",
+    "argoCdToken": "",
+    "configRepoUrl": "",
+    "targetNamespace": "production",
+    "autoSync": false
+  },
+  "kubernetes": {
+    "kubeconfigPath": "",
+    "clusterContext": "",
+    "replicas": 3
+  },
+  "telemetry": {
+    "prometheusUrl": "",
+    "grafanaUrl": "",
+    "alertWebhookUrl": "",
+    "emailRecipient": "kteenguyen@gmail.com"
+  }
+}

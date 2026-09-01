@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  workflow-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: antigravity-workflow-engine
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./workflow.config.json:/app/workflow.config.json
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
