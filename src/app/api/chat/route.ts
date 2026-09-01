@@ -143,24 +143,36 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có tính phản biện
     }
 
     // -------------------------------------------------------------
-    // OPTION B: CALL REAL GOOGLE GEMINI / ANTIGRAVITY API (IF API KEY IS PRESENT)
+    // OPTION B: CALL REAL GOOGLE GEMINI 2.0 FLASH / PRO API
     // -------------------------------------------------------------
     if (apiKey) {
       try {
+        let geminiModelName = 'gemini-2.0-flash';
+        if (model.toLowerCase().includes('pro')) {
+          geminiModelName = 'gemini-1.5-pro';
+        }
+
+        const formattedContents = [
+          ...history.map((h: any) => ({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: h.content }]
+          })),
+          {
+            role: 'user',
+            parts: [{ text: trimmedPrompt }]
+          }
+        ];
+
         const geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    { text: `${systemInstruction}\n\nLịch sử hội thoại trước:\n${history.map((h: any) => `${h.role}: ${h.content}`).join('\n')}\n\nNgười dùng yêu cầu: ${trimmedPrompt}` }
-                  ]
-                }
-              ],
+              systemInstruction: {
+                parts: [{ text: systemInstruction }]
+              },
+              contents: formattedContents,
               generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 2048
@@ -179,14 +191,14 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có tính phản biện
             content: geminiReply,
             timestamp,
             targetAgent,
-            model: `Antigravity Cloud (${model})`,
-            thinking: `[Antigravity Live Inference - Model: ${model}]\n1. Đã kết nối thành công tới Gemini API Server.\n2. Tổng hợp ngữ cảnh dự án ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoName}).\n3. Trả về kết quả trực tiếp từ LLM.`,
+            model: `Google ${geminiModelName} (Live Cloud API)`,
+            thinking: `[Google ${geminiModelName} Live Cloud Inference]\n1. Kết nối thành công Google Generative AI Cloud.\n2. Phân tích ngữ cảnh dự án ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoName}).\n3. Trả về kết quả suy luận thực tế 100% từ mô hình ${geminiModelName}.`,
             dispatchedAgents: [targetAgent]
           };
           return NextResponse.json({ success: true, message: responseMessage });
         }
       } catch (geminiErr) {
-        console.warn('Lỗi gọi Gemini API, chuyển sang Antigravity Neural Engine:', geminiErr);
+        console.warn('Lỗi gọi Gemini 2.0 Flash API, chuyển sang Antigravity Neural Engine:', geminiErr);
       }
     }
 
