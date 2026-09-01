@@ -37,3 +37,5 @@ next-env.d.ts
 # python test scripts
 test_*.py
 build_*.py
+
+.vercel
