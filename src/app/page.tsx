@@ -31,8 +31,10 @@ import {
   Sun,
   Moon,
   Sparkles,
-  Bot
+  Bot,
+  Key
 } from 'lucide-react';
+import { KeyPoolManagementTab } from '@/components/KeyPoolManagementTab';
 
 import {
   DeveloperLogo,
@@ -154,7 +156,7 @@ export default function WorkflowPage() {
   const isLight = theme === 'light';
 
   // Main Tab Navigation
-  const [activeMainTab, setActiveMainTab] = useState<'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA'>('WORKFLOW');
+  const [activeMainTab, setActiveMainTab] = useState<'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' | 'KEY_POOL'>('WORKFLOW');
 
   // Local Projects State
   const [localProjects, setLocalProjects] = useState<LocalProject[]>([]);
@@ -1083,6 +1085,19 @@ export default function WorkflowPage() {
               <Swords className="w-3.5 h-3.5" />
               <span>Đấu Trường Solo 1v1</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('KEY_POOL')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeMainTab === 'KEY_POOL'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
+              }`}
+            >
+              <Key className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Cấu Hình Key Pool & 9Router</span>
+            </button>
           </div>
 
           {/* Action Buttons: Push code, Tiếp tục, Đặt lại */}
@@ -1996,6 +2011,13 @@ export default function WorkflowPage() {
                 alert(`Đã gửi đề xuất tuyển mộ kỹ năng [${repo.name}] vào Agent Squad!`);
               }}
             />
+          </div>
+        )}
+
+        {/* VIEW 5: KEY POOL MANAGEMENT & 9ROUTER */}
+        {activeMainTab === 'KEY_POOL' && (
+          <div className="space-y-6">
+            <KeyPoolManagementTab theme={theme} />
           </div>
         )}
 

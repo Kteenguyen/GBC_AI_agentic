@@ -34,7 +34,7 @@ import { CLIExecutionResult } from '@/app/api/cli/route';
 interface AgentSquadChatTerminalProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenTab?: (tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA') => void;
+  onOpenTab?: (tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' | 'KEY_POOL') => void;
   onRunPipeline?: () => void;
   theme?: 'light' | 'dark';
 }

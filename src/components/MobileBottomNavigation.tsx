@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 interface MobileBottomNavigationProps {
-  activeTab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA';
-  onTabChange: (tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA') => void;
+  activeTab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' | 'KEY_POOL';
+  onTabChange: (tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' | 'KEY_POOL') => void;
   onRunPipeline: () => void;
   isRunning: boolean;
   theme?: 'light' | 'dark';
