@@ -32,7 +32,8 @@ import {
   Moon,
   Sparkles,
   Bot,
-  Key
+  Key,
+  X
 } from 'lucide-react';
 import { KeyPoolManagementTab } from '@/components/KeyPoolManagementTab';
 
@@ -774,7 +775,16 @@ export default function WorkflowPage() {
     }
   };
 
-  const handleAddToolToPipeline = (tool: DevOpsToolDefinition, configuredValues: Record<string, any>) => {
+  const handleRemoveDynamicNode = (nodeId: string) => {
+    setNodes(prev => prev.filter(n => n.id !== nodeId));
+    const toolId = nodeId.replace('node-dynamic-', '');
+    setActivePipelineToolIds(prev => prev.filter(id => id !== toolId));
+    if (selectedNodeId === nodeId) {
+      setSelectedNodeId('node-dev');
+    }
+  };
+
+  const handleAddToolToPipeline = (tool: DevOpsToolDefinition, configuredValues: Record<string, any>, targetBox?: 'CI_BOX' | 'CD_BOX') => {
     const newNodeId = `node-dynamic-${tool.id}`;
     const existingIdx = nodes.findIndex(n => n.id === newNodeId);
     
@@ -782,24 +792,27 @@ export default function WorkflowPage() {
       .filter(([_, v]) => v !== undefined && v !== '')
       .map(([k, v]) => `${k}: ${v}`);
 
+    const chosenBox = targetBox || ((tool.category === 'CI' || tool.category === 'SECURITY' || tool.category === 'BUILD') ? 'CI_BOX' : 'CD_BOX');
+
     const newNode: WorkflowNode = {
       id: newNodeId,
       name: tool.name,
       subLabel: tool.category,
       category: tool.category,
-      box: (tool.category === 'CI' || tool.category === 'SECURITY' || tool.category === 'BUILD') ? 'CI_BOX' : 'CD_BOX',
+      box: chosenBox,
       logoType: 'DEV',
       status: 'STANDBY',
       statusText: 'sẵn sàng',
       actionLabel: `Chạy & Kiểm Tra ${tool.name}`,
       actionType: 'GET_RAW_ARTIFACT',
       logs: [
-        `[Dynamic Plugin] Nền tảng Open Source [${tool.name}] đã nạp vào Workflow!`,
+        `[Dynamic Plugin] Nền tảng Open Source [${tool.name}] đã nạp thành công vào ${chosenBox === 'CI_BOX' ? 'Khâu ① CI & Bảo Mật' : 'Khâu ② CD GitOps & Giám Sát'}!`,
         `[Cấu hình kết nối] ${configDetailsList.length > 0 ? configDetailsList.join(' | ') : 'Cấu hình mặc định'}`,
         `[Giấy phép] ${tool.license} • Trạng thái: Sẵn sàng thực thi trong Pipeline.`
       ],
       metrics: {
         'Nền tảng': tool.name,
+        'Khâu Tích Hợp': chosenBox === 'CI_BOX' ? 'Khâu ① CI & Bảo Mật' : 'Khâu ② CD GitOps & Giám Sát',
         'Giấy phép': tool.license,
         'Trạng thái': 'SẴN SÀNG'
       },
@@ -828,10 +841,21 @@ export default function WorkflowPage() {
     setIsOverBox1(false);
     setIsOverBox2(false);
     try {
-      const dataStr = e.dataTransfer.getData('application/json');
+      const dataStr = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
+      let tool: DevOpsToolDefinition | null = null;
       if (dataStr) {
-        const tool: DevOpsToolDefinition = JSON.parse(dataStr);
-        handleAddToolToPipeline(tool, {});
+        try {
+          tool = JSON.parse(dataStr);
+        } catch (parseErr) {
+          tool = null;
+        }
+      }
+      if (!tool && typeof window !== 'undefined' && (window as any).__draggedDevOpsTool) {
+        tool = (window as any).__draggedDevOpsTool;
+      }
+
+      if (tool) {
+        handleAddToolToPipeline(tool, {}, boxType);
       }
     } catch (err) {
       console.error('Drop error:', err);
@@ -1309,7 +1333,17 @@ export default function WorkflowPage() {
                     key={t.id}
                     draggable={true}
                     onDragStart={(e) => {
-                      e.dataTransfer.setData('application/json', JSON.stringify(t));
+                      const payload = JSON.stringify(t);
+                      e.dataTransfer.setData('text/plain', payload);
+                      e.dataTransfer.setData('application/json', payload);
+                      if (typeof window !== 'undefined') {
+                        (window as any).__draggedDevOpsTool = t;
+                      }
+                    }}
+                    onDragEnd={() => {
+                      if (typeof window !== 'undefined') {
+                        (window as any).__draggedDevOpsTool = null;
+                      }
                     }}
                     onClick={() => handleAddToolToPipeline(t, {})}
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-mono font-bold border cursor-grab active:cursor-grabbing transition shadow-xs shrink-0 select-none ${
@@ -1317,7 +1351,7 @@ export default function WorkflowPage() {
                         ? 'bg-[#FAF8F5] hover:bg-blue-600 hover:text-white border-[#E2DDD5] text-slate-700 hover:border-blue-600'
                         : 'bg-[#0F172A] hover:bg-blue-600 hover:text-white border-slate-700/80 hover:border-blue-400 text-slate-200'
                     }`}
-                    title="Kéo thả vào Box hoặc nhấp để thêm nhanh"
+                    title="Kéo thả vào Box 1 / Box 2 hoặc bấm để tích hợp ngay"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
                     <span>{t.name}</span>
@@ -1607,6 +1641,49 @@ export default function WorkflowPage() {
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>cổng 3</span>
                     </div>
                   </div>
+
+                  {/* DYNAMIC DROPPED PLUGINS IN BOX 1 */}
+                  {nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CI_BOX').length > 0 && (
+                    <div className={`mt-3 pt-3 border-t border-dashed ${isLight ? 'border-blue-200' : 'border-cyan-900/50'}`}>
+                      <div className="flex items-center gap-1.5 mb-2.5 text-xs font-bold text-blue-600 dark:text-cyan-400">
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Công cụ mở rộng đã tích hợp vào Khâu CI & Bảo Mật ({nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CI_BOX').length}):</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CI_BOX').map(dynNode => (
+                          <div
+                            key={dynNode.id}
+                            onClick={() => setSelectedNodeId(dynNode.id)}
+                            className={`p-3 rounded-2xl border flex items-center gap-3 cursor-pointer transition-all shadow-sm ${
+                              selectedNodeId === dynNode.id
+                                ? (isLight ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-400/30' : 'bg-cyan-950/40 border-cyan-400 ring-2 ring-cyan-400/30')
+                                : (isLight ? 'bg-white hover:bg-slate-50 border-[#E2DDD5]' : 'bg-[#0E1526] hover:bg-slate-800 border-slate-700')
+                            }`}
+                            style={{ minWidth: '180px' }}
+                          >
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${isLight ? 'bg-blue-100 text-blue-800' : 'bg-cyan-900/60 text-cyan-300'}`}>
+                              {dynNode.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className={`font-bold text-xs truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{dynNode.name}</div>
+                              <div className="text-[10px] text-emerald-500 font-mono font-bold">{dynNode.statusText}</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveDynamicNode(dynNode.id);
+                              }}
+                              className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition"
+                              title="Gỡ công cụ"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* BOX 2: ② JENKINS CD — GITOPS DEPLOY & MONITOR (ACTIVE DROP ZONE) */}
@@ -1802,6 +1879,49 @@ export default function WorkflowPage() {
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>production</span>
                     </div>
                   </div>
+
+                  {/* DYNAMIC DROPPED PLUGINS IN BOX 2 */}
+                  {nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CD_BOX').length > 0 && (
+                    <div className={`mt-3 pt-3 border-t border-dashed ${isLight ? 'border-purple-200' : 'border-purple-900/50'}`}>
+                      <div className="flex items-center gap-1.5 mb-2.5 text-xs font-bold text-purple-600 dark:text-purple-400">
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Công cụ mở rộng đã tích hợp vào Khâu CD GitOps & Giám Sát ({nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CD_BOX').length}):</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {nodes.filter(n => n.id.startsWith('node-dynamic-') && n.box === 'CD_BOX').map(dynNode => (
+                          <div
+                            key={dynNode.id}
+                            onClick={() => setSelectedNodeId(dynNode.id)}
+                            className={`p-3 rounded-2xl border flex items-center gap-3 cursor-pointer transition-all shadow-sm ${
+                              selectedNodeId === dynNode.id
+                                ? (isLight ? 'bg-purple-50 border-purple-500 ring-2 ring-purple-400/30' : 'bg-purple-950/40 border-purple-400 ring-2 ring-purple-400/30')
+                                : (isLight ? 'bg-white hover:bg-slate-50 border-[#E2DDD5]' : 'bg-[#0E1526] hover:bg-slate-800 border-slate-700')
+                            }`}
+                            style={{ minWidth: '180px' }}
+                          >
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${isLight ? 'bg-purple-100 text-purple-800' : 'bg-purple-900/60 text-purple-300'}`}>
+                              {dynNode.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className={`font-bold text-xs truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{dynNode.name}</div>
+                              <div className="text-[10px] text-emerald-500 font-mono font-bold">{dynNode.statusText}</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveDynamicNode(dynNode.id);
+                              }}
+                              className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition"
+                              title="Gỡ công cụ"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </div>
