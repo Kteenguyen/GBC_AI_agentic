@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Play, 
   SkipForward, 
@@ -54,6 +54,10 @@ import {
   OfficialToolIcon
 } from '@/components/BrandLogos';
 import { WorkflowActorSidebar } from '@/components/WorkflowActorSidebar';
+import WorkflowConnectionCanvas from '@/components/WorkflowConnectionCanvas';
+import WorkflowNodePortHandle from '@/components/WorkflowNodePortHandle';
+import { WorkflowEdge, WorkflowPort, Point } from '@/types/workflowGraph';
+import { DEFAULT_INITIAL_EDGES } from '@/lib/workflowGraphEngine';
 
 import ArtifactInspectorModal from '@/components/ArtifactInspectorModal';
 import InfrastructureConfigModal, { auditTabConfig } from '@/components/InfrastructureConfigModal';
@@ -237,6 +241,133 @@ export default function WorkflowPage() {
   const [soloBattleAgent, setSoloBattleAgent] = useState<AgentRoleProfile | null>(null);
   const [isSoloModalOpen, setIsSoloModalOpen] = useState<boolean>(false);
   const [isActorSidebarOpen, setIsActorSidebarOpen] = useState<boolean>(true);
+
+  // Interactive Connection Graph & Bezier Edges State
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const [workflowEdges, setWorkflowEdges] = useState<WorkflowEdge[]>(DEFAULT_INITIAL_EDGES);
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number; width: number; height: number }>>({});
+  const [activeConnectingPort, setActiveConnectingPort] = useState<{ nodeId: string; port: WorkflowPort; startPoint: Point } | null>(null);
+  const [cursorPos, setCursorPos] = useState<Point | null>(null);
+
+  const updateNodePositions = useCallback(() => {
+    if (!canvasContainerRef.current) return;
+    const containerRect = canvasContainerRef.current.getBoundingClientRect();
+    const nodeElements = canvasContainerRef.current.querySelectorAll('[data-workflow-node-id]');
+    
+    const positions: Record<string, { x: number; y: number; width: number; height: number }> = {};
+    nodeElements.forEach((el) => {
+      const nodeId = el.getAttribute('data-workflow-node-id');
+      if (nodeId) {
+        const rect = el.getBoundingClientRect();
+        positions[nodeId] = {
+          x: rect.left - containerRect.left + (canvasContainerRef.current ? canvasContainerRef.current.scrollLeft : 0),
+          y: rect.top - containerRect.top + (canvasContainerRef.current ? canvasContainerRef.current.scrollTop : 0),
+          width: rect.width,
+          height: rect.height
+        };
+      }
+    });
+    setNodePositions(positions);
+  }, []);
+
+  useEffect(() => {
+    updateNodePositions();
+    const timer = setTimeout(updateNodePositions, 150);
+    const handleResize = () => updateNodePositions();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
+    };
+  }, [nodes, activePipelineToolIds, isActorSidebarOpen, updateNodePositions]);
+
+  const handleStartConnect = (nodeId: string, port: WorkflowPort, e: React.MouseEvent) => {
+    if (!canvasContainerRef.current) return;
+    const containerRect = canvasContainerRef.current.getBoundingClientRect();
+    const startPoint = {
+      x: e.clientX - containerRect.left + canvasContainerRef.current.scrollLeft,
+      y: e.clientY - containerRect.top + canvasContainerRef.current.scrollTop
+    };
+    setActiveConnectingPort({ nodeId, port, startPoint });
+    setCursorPos(startPoint);
+  };
+
+  const handleMouseMoveCanvas = (e: React.MouseEvent) => {
+    if (!activeConnectingPort || !canvasContainerRef.current) return;
+    const containerRect = canvasContainerRef.current.getBoundingClientRect();
+    setCursorPos({
+      x: e.clientX - containerRect.left + canvasContainerRef.current.scrollLeft,
+      y: e.clientY - containerRect.top + canvasContainerRef.current.scrollTop
+    });
+  };
+
+  const handleFinishConnect = async (targetNodeId: string, targetPort: WorkflowPort) => {
+    if (!activeConnectingPort) return;
+    const sourceNodeId = activeConnectingPort.nodeId;
+    const sourcePort = activeConnectingPort.port;
+
+    setActiveConnectingPort(null);
+    setCursorPos(null);
+
+    if (sourceNodeId === targetNodeId) {
+      alert('Không thể tự kết nối Node vào chính nó (Self-loop rejected)!');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/workflow/edges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceNodeId,
+          sourcePort,
+          targetNodeId,
+          targetPort,
+          label: 'pipeline link'
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.edge) {
+        setWorkflowEdges(prev => [...prev, data.edge]);
+      } else {
+        alert(data.error || 'Lỗi khi tạo đường nối mũi tên');
+      }
+    } catch (err) {
+      console.error('Lỗi API tạo đường nối:', err);
+    }
+  };
+
+  const handleRemoveEdge = async (edgeId: string) => {
+    try {
+      const res = await fetch(`/api/workflow/edges?id=${edgeId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWorkflowEdges(prev => prev.filter(e => e.id !== edgeId));
+      }
+    } catch (err) {
+      console.error('Lỗi API gỡ đường nối:', err);
+    }
+  };
+
+  const handleResetWorkflowEdges = async () => {
+    try {
+      const res = await fetch('/api/workflow/graph', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'RESET' })
+      });
+      const data = await res.json();
+      if (data.success && data.edges) {
+        setWorkflowEdges(data.edges);
+      }
+    } catch (err) {
+      console.error('Lỗi khôi phục đường nối:', err);
+    }
+  };
 
   // Modal Artifact State
   const [modalArtifact, setModalArtifact] = useState<{
@@ -1234,6 +1365,23 @@ export default function WorkflowPage() {
               <span className="xl:hidden">Kho OS</span>
             </button>
 
+            {/* Reset Connection Edges */}
+            <button
+              type="button"
+              onClick={handleResetWorkflowEdges}
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
+                isLight 
+                  ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
+                  : 'bg-[#0F172A] hover:bg-slate-800 text-slate-300 border-slate-700'
+              }`}
+              style={{ height: '30px' }}
+              title="Khôi phục toàn bộ đường nối mũi tên mặc định của hệ thống"
+            >
+              <RotateCcw className="w-3 h-3 text-slate-500" />
+              <span className="hidden xl:inline">Khôi Phục Dây Nối ({workflowEdges.length})</span>
+              <span className="xl:hidden">Dây ({workflowEdges.length})</span>
+            </button>
+
             {/* Documentation Guides (Full Page Link & Modal) */}
             <a
               href="/docs"
@@ -1336,11 +1484,31 @@ export default function WorkflowPage() {
               {/* Desktop Visual Canvas & Inspector Column */}
               <div className="flex-1 w-full min-w-0 space-y-6">
                 {/* Desktop Visual Canvas Board with Drop Targets (Visible on >= 768px screens) */}
-                <div className={`hidden md:block w-full rounded-3xl p-6 sm:p-8 shadow-xl overflow-x-auto relative border transition ${
+                <div 
+                  ref={canvasContainerRef}
+                  onMouseMove={handleMouseMoveCanvas}
+                  onMouseUp={() => {
+                    if (activeConnectingPort) {
+                      setActiveConnectingPort(null);
+                      setCursorPos(null);
+                    }
+                  }}
+                  className={`hidden md:block w-full rounded-3xl p-6 sm:p-8 shadow-xl overflow-x-auto relative border transition ${
                   isLight
                     ? 'bg-white border-[#E2DDD5]'
                     : 'bg-[#090E1A] border-[#1E293B]'
                 }`}>
+                  {/* Interactive Dynamic Bezier SVG Connection Canvas */}
+                  <WorkflowConnectionCanvas
+                    containerRef={canvasContainerRef}
+                    edges={workflowEdges}
+                    nodePositions={nodePositions}
+                    activeConnectingPort={activeConnectingPort}
+                    cursorPos={cursorPos}
+                    onRemoveEdge={handleRemoveEdge}
+                    isRunningPipeline={isRunningAll}
+                    theme={theme}
+                  />
                   <div className="min-w-[1150px] space-y-8">
                 
                 {/* EXTERNAL LEFT: Developer & GitHub Source */}
@@ -1359,8 +1527,9 @@ export default function WorkflowPage() {
                       const srcId = e.dataTransfer.getData('text/node-id');
                       if (srcId) handleSwapNodes(srcId, 'node-dev');
                     }}
+                    data-workflow-node-id="node-dev"
                     onClick={() => setSelectedNodeId('node-dev')}
-                    className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${getNodeBorder('node-dev', nodes.find(n => n.id === 'node-dev')?.status || 'STANDBY')}`}
+                    className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${getNodeBorder('node-dev', nodes.find(n => n.id === 'node-dev')?.status || 'STANDBY')}`}
                     style={{ width: '130px', height: '110px' }}
                   >
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1372,6 +1541,7 @@ export default function WorkflowPage() {
                       {selectedProject?.gitUserName || 'Developer'}
                     </span>
                     <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>push code</span>
+                    <WorkflowNodePortHandle nodeId="node-dev" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                   </div>
 
                   {/* Connecting line */}
@@ -1397,8 +1567,9 @@ export default function WorkflowPage() {
                       const srcId = e.dataTransfer.getData('text/node-id');
                       if (srcId) handleSwapNodes(srcId, 'node-github-src');
                     }}
+                    data-workflow-node-id="node-github-src"
                     onClick={() => setSelectedNodeId('node-github-src')}
-                    className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${getNodeBorder('node-github-src', nodes.find(n => n.id === 'node-github-src')?.status || 'STANDBY')}`}
+                    className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${getNodeBorder('node-github-src', nodes.find(n => n.id === 'node-github-src')?.status || 'STANDBY')}`}
                     style={{ width: '140px', height: '110px' }}
                   >
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1410,6 +1581,7 @@ export default function WorkflowPage() {
                       {selectedProject?.repoName !== 'Chưa liên kết' ? selectedProject?.repoName : 'GitHub (Source)'}
                     </span>
                     <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>source repo</span>
+                    <WorkflowNodePortHandle nodeId="node-github-src" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                   </div>
 
                   <div className="flex items-center gap-1 text-slate-500">
@@ -1467,8 +1639,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-jenkins-ci');
                       }}
+                      data-workflow-node-id="node-jenkins-ci"
                       onClick={() => setSelectedNodeId('node-jenkins-ci')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-jenkins-ci', nodes.find(n => n.id === 'node-jenkins-ci')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-jenkins-ci', nodes.find(n => n.id === 'node-jenkins-ci')?.status || 'STANDBY')}`}
                       style={{ width: '160px', height: '125px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1480,6 +1653,7 @@ export default function WorkflowPage() {
                       <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {nodes.find(n => n.id === 'node-jenkins-ci')?.statusText}
                       </span>
+                      <WorkflowNodePortHandle nodeId="node-jenkins-ci" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-2">
@@ -1501,8 +1675,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-owasp');
                       }}
+                      data-workflow-node-id="node-owasp"
                       onClick={() => setSelectedNodeId('node-owasp')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-owasp', nodes.find(n => n.id === 'node-owasp')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-owasp', nodes.find(n => n.id === 'node-owasp')?.status || 'STANDBY')}`}
                       style={{ width: '170px', height: '125px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1512,6 +1687,7 @@ export default function WorkflowPage() {
                       </div>
                       <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>OWASP</span>
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>cổng 1</span>
+                      <WorkflowNodePortHandle nodeId="node-owasp" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-2">
@@ -1533,8 +1709,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-sonarqube');
                       }}
+                      data-workflow-node-id="node-sonarqube"
                       onClick={() => setSelectedNodeId('node-sonarqube')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-sonarqube', nodes.find(n => n.id === 'node-sonarqube')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-sonarqube', nodes.find(n => n.id === 'node-sonarqube')?.status || 'STANDBY')}`}
                       style={{ width: '170px', height: '125px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1544,6 +1721,7 @@ export default function WorkflowPage() {
                       </div>
                       <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>SonarQube</span>
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>cổng 2</span>
+                      <WorkflowNodePortHandle nodeId="node-sonarqube" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
                   </div>
 
@@ -1559,8 +1737,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-docker');
                       }}
+                      data-workflow-node-id="node-docker"
                       onClick={() => setSelectedNodeId('node-docker')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-docker', nodes.find(n => n.id === 'node-docker')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-docker', nodes.find(n => n.id === 'node-docker')?.status || 'STANDBY')}`}
                       style={{ width: '160px', height: '115px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1572,6 +1751,7 @@ export default function WorkflowPage() {
                       <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {nodes.find(n => n.id === 'node-docker')?.statusText}
                       </span>
+                      <WorkflowNodePortHandle nodeId="node-docker" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex items-center gap-1 text-slate-500">
@@ -1593,8 +1773,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-trivy');
                       }}
+                      data-workflow-node-id="node-trivy"
                       onClick={() => setSelectedNodeId('node-trivy')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-trivy', nodes.find(n => n.id === 'node-trivy')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-trivy', nodes.find(n => n.id === 'node-trivy')?.status || 'STANDBY')}`}
                       style={{ width: '170px', height: '115px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1604,6 +1785,7 @@ export default function WorkflowPage() {
                       </div>
                       <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>Trivy</span>
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>cổng 3</span>
+                      <WorkflowNodePortHandle nodeId="node-trivy" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
                   </div>
 
@@ -1695,8 +1877,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-jenkins-cd');
                       }}
+                      data-workflow-node-id="node-jenkins-cd"
                       onClick={() => setSelectedNodeId('node-jenkins-cd')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-jenkins-cd', nodes.find(n => n.id === 'node-jenkins-cd')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-jenkins-cd', nodes.find(n => n.id === 'node-jenkins-cd')?.status || 'STANDBY')}`}
                       style={{ width: '145px', height: '120px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1708,6 +1891,7 @@ export default function WorkflowPage() {
                       <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {nodes.find(n => n.id === 'node-jenkins-cd')?.statusText}
                       </span>
+                      <WorkflowNodePortHandle nodeId="node-jenkins-cd" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
@@ -1729,8 +1913,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-github-config');
                       }}
+                      data-workflow-node-id="node-github-config"
                       onClick={() => setSelectedNodeId('node-github-config')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-github-config', nodes.find(n => n.id === 'node-github-config')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-github-config', nodes.find(n => n.id === 'node-github-config')?.status || 'STANDBY')}`}
                       style={{ width: '145px', height: '120px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1740,6 +1925,7 @@ export default function WorkflowPage() {
                       </div>
                       <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>GitHub</span>
                       <span className={`text-[9.5px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>config repo</span>
+                      <WorkflowNodePortHandle nodeId="node-github-config" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
@@ -1761,8 +1947,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-argocd');
                       }}
+                      data-workflow-node-id="node-argocd"
                       onClick={() => setSelectedNodeId('node-argocd')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-argocd', nodes.find(n => n.id === 'node-argocd')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-argocd', nodes.find(n => n.id === 'node-argocd')?.status || 'STANDBY')}`}
                       style={{ width: '145px', height: '120px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1774,6 +1961,7 @@ export default function WorkflowPage() {
                       <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {nodes.find(n => n.id === 'node-argocd')?.statusText}
                       </span>
+                      <WorkflowNodePortHandle nodeId="node-argocd" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
@@ -1795,8 +1983,9 @@ export default function WorkflowPage() {
                         const srcId = e.dataTransfer.getData('text/node-id');
                         if (srcId) handleSwapNodes(srcId, 'node-k8s');
                       }}
+                      data-workflow-node-id="node-k8s"
                       onClick={() => setSelectedNodeId('node-k8s')}
-                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-k8s', nodes.find(n => n.id === 'node-k8s')?.status || 'STANDBY')}`}
+                      className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all ${getNodeBorder('node-k8s', nodes.find(n => n.id === 'node-k8s')?.status || 'STANDBY')}`}
                       style={{ width: '145px', height: '120px' }}
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-xs mb-1 border ${
@@ -1808,6 +1997,7 @@ export default function WorkflowPage() {
                       <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {nodes.find(n => n.id === 'node-k8s')?.statusText}
                       </span>
+                      <WorkflowNodePortHandle nodeId="node-k8s" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
