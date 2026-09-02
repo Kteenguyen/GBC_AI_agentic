@@ -182,73 +182,83 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực qu
     }
 
     // -------------------------------------------------------------
-    // OPTION B: DIRECT GOOGLE GEMINI 2.0 FLASH / PRO API
+    // OPTION B: DIRECT UNLIMITED GEMINI KEY POOL (AUTO-FAILOVER ON 429 RATE LIMIT)
     // -------------------------------------------------------------
-    if (effectiveApiKey && effectiveApiKey.length > 5) {
-      try {
-        let geminiModelName = 'gemini-2.0-flash';
-        if (model.toLowerCase().includes('pro')) geminiModelName = 'gemini-1.5-pro';
+    if (keyPool.length > 0) {
+      let geminiModelName = 'gemini-2.0-flash';
+      if (model.toLowerCase().includes('pro')) geminiModelName = 'gemini-1.5-pro';
 
-        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${effectiveApiKey}`;
-
-        const contents = [
-          ...history.map((h: any) => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }]
-          })),
-          {
-            role: 'user',
-            parts: [{ text: trimmedPrompt }]
-          }
-        ];
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-        const geminiRes = await fetch(geminiApiUrl, {
-          method: 'POST',
-          signal: controller.signal,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: systemInstruction }]
-            },
-            contents,
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 2048
-            }
-          })
-        });
-
-        clearTimeout(timeoutId);
-
-        if (geminiRes.ok) {
-          const geminiData = await geminiRes.json();
-          const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-          if (geminiText) {
-            const responseMessage: ChatMessage = {
-              id: `msg-${Date.now()}`,
-              role: 'assistant',
-              content: geminiText,
-              timestamp,
-              targetAgent,
-              model: `Google ${geminiModelName}`,
-              thinking: `[Google Gemini 2.0 Live Inference - Model: ${geminiModelName}]\n1. Đã nhận diện prompt từ Sếp: "${trimmedPrompt}".\n2. Phân rã mục tiêu chiến lược và áp dụng 4 trục bảo chứng.\n3. Xuất kết quả suy luận chất lượng cao.`,
-              dispatchedAgents: [targetAgent]
-            };
-
-            return NextResponse.json({
-              success: true,
-              message: responseMessage
-            });
-          }
+      const contents = [
+        ...history.map((h: any) => ({
+          role: h.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: h.content }]
+        })),
+        {
+          role: 'user',
+          parts: [{ text: trimmedPrompt }]
         }
-      } catch (geminiErr: any) {
-        console.warn('Google Gemini API call failed, switching to Intelligent Contextual Fallback Engine:', geminiErr?.message);
+      ];
+
+      // Duyệt qua toàn bộ Key trong Unlimited Pool để đốt Token liên hoàn
+      for (let kIdx = 0; kIdx < keyPool.length; kIdx++) {
+        const currentKey = keyPool[kIdx];
+        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${currentKey}`;
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+          const geminiRes = await fetch(geminiApiUrl, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: systemInstruction }]
+              },
+              contents,
+              generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 2048
+              }
+            })
+          });
+
+          clearTimeout(timeoutId);
+
+          // Nếu Key này bị 429 hoặc 403, ghi log và tự động chuyển sang Key tiếp theo trong mảng
+          if (geminiRes.status === 429 || geminiRes.status === 403) {
+            console.warn(`[Key Burn Pool] Key #${kIdx + 1} (${currentKey.substring(0, 10)}...) bị Rate Limit (429). Chuyển tiếp Key kế tiếp...`);
+            continue;
+          }
+
+          if (geminiRes.ok) {
+            const geminiData = await geminiRes.json();
+            const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (geminiText) {
+              const responseMessage: ChatMessage = {
+                id: `msg-${Date.now()}`,
+                role: 'assistant',
+                content: geminiText,
+                timestamp,
+                targetAgent,
+                model: `Google ${geminiModelName} (Key #${kIdx + 1}/${keyPool.length})`,
+                thinking: `[9Router & Multi-Key Pool Live - Model: ${geminiModelName}]\n1. Đã nhận diện prompt từ Sếp: "${trimmedPrompt}".\n2. Đốt Token thành công qua Key #${kIdx + 1} trong tổng số ${keyPool.length} Keys đang hoạt động.\n3. Xuất kết quả suy luận chất lượng cao.`,
+                dispatchedAgents: [targetAgent]
+              };
+
+              return NextResponse.json({
+                success: true,
+                message: responseMessage
+              });
+            }
+          }
+        } catch (geminiErr: any) {
+          console.warn(`[Key Burn Pool] Lỗi kết nối Key #${kIdx + 1}:`, geminiErr?.message);
+        }
       }
     }
 
