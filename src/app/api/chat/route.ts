@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SQUAD_AGENTS, BASELINE_GITHUB_REPOS } from '@/lib/constants';
 
 export interface ChatMessage {
@@ -62,7 +62,18 @@ export async function POST(req: NextRequest) {
       history = [] 
     } = body;
 
-    const effectiveApiKey = clientApiKey || apiKey;
+    const rawApiKeyString = clientApiKey || apiKey || '';
+    // Tự động phân tách danh sách nhiều API Keys (phân cách bằng dấu phẩy, chấm phẩy hoặc xuống dòng)
+    const keyPool = rawApiKeyString
+      .split(/[\n,;]+/)
+      .map((k: string) => k.trim())
+      .filter((k: string) => k.length > 5);
+
+    // Chọn ngẫu nhiên 1 Key trong Pool 10 Keys để cân bằng tải (Load Balancing)
+    const effectiveApiKey = keyPool.length > 0 
+      ? keyPool[Math.floor(Math.random() * keyPool.length)] 
+      : '';
+
     const effectiveNineRouterUrl = header9RouterUrl || body.clientNineRouterUrl || nineRouterUrl;
     const effectiveNineRouterKey = header9RouterKey || body.clientNineRouterKey || nineRouterApiKey;
 
