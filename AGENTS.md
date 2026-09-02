@@ -61,3 +61,13 @@ Tất cả 13 Subagents và Supreme Brainstorming Leader BẮT BUỘC tuân th�
 2. **Kích Hoạt Harness Điều Khiển Trình Duyệt Thực Tế (Browser Harness Automation)**:
    - Sử dụng `browser-harness` / CDP / Playwright để tự động lái trình duyệt, kiểm tra giao diện trực tiếp trên Production và Localhost, chụp ảnh xác thực trước khi kết luận.
 
+3. **Bắt Buộc Chạy Đủ Vòng Đời Code (Mandatory Full Workflow Lifecycle Gate)**:
+   - Sau MỖI prompt của người dùng, Leader BẮT BUỘC triệu tập Squad Subagents và thực thi đầy đủ 6 khâu của vòng đời code trước khi nghiệm thu:
+     1) **Khâu 1 (Leader Brainstorming)**: Phân rã mục tiêu, xuất sơ đồ luồng (Flow Diagram) và phân công subagents.
+     2) **Khâu 2 (Development - Alex & Rex)**: Lập trình mã nguồn thực tế, chuẩn Clean Architecture và Supabase Cloud REST.
+     3) **Khâu 3 (QA E2E - qa_e2e_browser_reviewer)**: Kiểm thử E2E giao diện, visual regression 430px và tương tác người dùng.
+     4) **Khâu 4 (SecOps - Quinn & Deep Tester)**: Kiểm toán bảo mật OWASP, an ninh token và vòng lặp failover 429.
+     5) **Khâu 5 (DevOps Parity)**: Kiểm tra `npx tsc --noEmit` 0 lỗi 100%, commit Git và deploy Production.
+     6) **Khâu 6 (Nghiệm Thu & Báo Cáo)**: Tổng hợp báo cáo đa tầng kèm đường dẫn kiểm chứng thực tế cho người dùng.
+   - TUYỆT ĐỐI KHÔNG đốt cháy giai đoạn hoặc báo cáo khi chưa hoàn tất quy trình kiểm thử và deploy.
+

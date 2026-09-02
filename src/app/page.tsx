@@ -1022,21 +1022,21 @@ export default function WorkflowPage() {
     }`}>
       
       {/* 1. TOP BAR CONTROLS & MAIN TAB SWITCHER */}
-      <div className={`w-full px-3 py-2 sticky top-0 z-50 border-b transition-colors ${
+      <div className={`w-full px-2 sm:px-4 py-2 sticky top-0 z-50 border-b transition-colors ${
         isLight ? 'bg-[#EFECE6] border-[#E2DDD5]' : 'bg-[#0B0F19] border-[#1E293B]'
       }`}>
         
-        {/* Row 1: ALL CONTROLS IN 1 SINGLE ROW ON DESKTOP */}
-        <div className="max-w-[1750px] mx-auto flex items-center justify-between gap-2 overflow-x-auto lg:overflow-x-visible flex-nowrap">
+        {/* Row 1: ALL CONTROLS IN 1 SINGLE FLUID ROW ON DESKTOP */}
+        <div className="max-w-[1850px] w-full mx-auto flex items-center justify-between gap-1.5 sm:gap-2 overflow-x-auto lg:overflow-x-visible no-scrollbar flex-nowrap">
           
           {/* Group 1: 5 Main Navigation Tabs */}
-          <div className={`flex items-center gap-1 p-0.5 rounded-lg border shrink-0 transition ${
+          <div className={`flex items-center gap-0.5 sm:gap-1 p-0.5 rounded-lg border shrink-0 transition ${
             isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-[#090D18] border-slate-800'
           }`}>
             <button
               type="button"
               onClick={() => setActiveMainTab('WORKFLOW')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'WORKFLOW'
                   ? (isLight ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm shadow-blue-600/30')
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
@@ -1044,13 +1044,14 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Sơ Đồ Visual</span>
+              <span className="hidden sm:inline">Sơ Đồ Visual</span>
+              <span className="sm:hidden">Sơ Đồ</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('AGENTS')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'AGENTS'
                   ? (isLight ? 'bg-blue-700 text-white shadow-sm' : 'bg-cyan-600 text-white shadow-sm shadow-cyan-600/30')
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
@@ -1058,14 +1059,14 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>13 Subagents</span>
+              <span>13 Agents</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping ml-0.5" />
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('QA_LAB')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'QA_LAB'
                   ? 'bg-purple-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
@@ -1079,7 +1080,7 @@ export default function WorkflowPage() {
             <button
               type="button"
               onClick={() => setActiveMainTab('SOLO_ARENA')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'SOLO_ARENA'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
@@ -1093,7 +1094,7 @@ export default function WorkflowPage() {
             <button
               type="button"
               onClick={() => setActiveMainTab('KEY_POOL')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'KEY_POOL'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
@@ -1101,17 +1102,18 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <Key className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Key Pool & 9Router</span>
+              <span className="hidden 2xl:inline">Key Pool & 9Router</span>
+              <span className="2xl:hidden">Key Pool</span>
             </button>
           </div>
 
           {/* Group 2: Action Buttons (Push code, Tiếp tục, Đặt lại) */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handlePushCodeRunAll}
               disabled={isRunningAll}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11.5px] font-bold text-white transition-all shadow-sm whitespace-nowrap ${
+              className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold text-white transition-all shadow-sm whitespace-nowrap ${
                 isRunningAll
                   ? 'bg-blue-600 animate-pulse cursor-wait'
                   : 'bg-[#10B981] hover:bg-[#059669] shadow-emerald-500/20'
@@ -1119,14 +1121,15 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <Play className="w-3 h-3 fill-white" />
-              <span>Push code (chạy hết)</span>
+              <span className="hidden md:inline">Push code (chạy hết)</span>
+              <span className="md:hidden">Push</span>
             </button>
 
             <button
               type="button"
               onClick={handleStepForward}
               disabled={isRunningAll}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition-all border whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition-all border whitespace-nowrap ${
                 isLight 
                   ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
                   : 'bg-[#1E293B] hover:bg-slate-700 text-slate-200 border-slate-700'
@@ -1134,13 +1137,13 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <SkipForward className="w-3 h-3" />
-              <span>Tiếp tục</span>
+              <span className="hidden lg:inline">Tiếp tục</span>
             </button>
 
             <button
               type="button"
               onClick={handleReset}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition-all border whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition-all border whitespace-nowrap ${
                 isLight 
                   ? 'bg-[#FAF8F5] hover:bg-slate-200 text-slate-600 border-[#E2DDD5]'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-slate-400 hover:text-white border-slate-800'
@@ -1148,17 +1151,17 @@ export default function WorkflowPage() {
               style={{ height: '30px' }}
             >
               <RotateCcw className="w-3 h-3" />
-              <span>Đặt lại</span>
+              <span className="hidden lg:inline">Đặt lại</span>
             </button>
           </div>
 
           {/* Group 3: Utility Controls & Modals */}
-          <div className="flex items-center gap-1.5 shrink-0 text-xs">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 text-xs">
             {/* AI Prompt Copilot Terminal Button */}
             <button
               type="button"
               onClick={() => setIsChatOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm transition cursor-pointer active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm transition cursor-pointer active:scale-95 whitespace-nowrap"
               style={{ height: '30px' }}
               title="Mở AI Prompt Terminal (Ctrl + K)"
             >
@@ -1171,7 +1174,7 @@ export default function WorkflowPage() {
             <button
               type="button"
               onClick={() => setTheme(curr => curr === 'light' ? 'dark' : 'light')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11.5px] font-bold transition-all border shadow-xs cursor-pointer whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition-all border shadow-xs cursor-pointer whitespace-nowrap ${
                 isLight
                   ? 'bg-[#FFFFFF] hover:bg-[#FAF8F5] text-amber-800 border-[#E2DDD5]'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-amber-300 border-slate-700'
@@ -1182,12 +1185,12 @@ export default function WorkflowPage() {
               {isLight ? (
                 <>
                   <Sun className="w-3 h-3 text-amber-600 fill-amber-500/30" />
-                  <span>Sáng</span>
+                  <span className="hidden md:inline">Sáng</span>
                 </>
               ) : (
                 <>
                   <Moon className="w-3 h-3 text-cyan-300" />
-                  <span>Tối</span>
+                  <span className="hidden md:inline">Tối</span>
                 </>
               )}
             </button>
@@ -1196,27 +1199,28 @@ export default function WorkflowPage() {
             <button
               type="button"
               onClick={() => setIsCatalogModalOpen(true)}
-              className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded-lg text-[11.5px] font-bold border border-blue-500/40 shadow-xs transition cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold border border-blue-500/40 shadow-xs transition cursor-pointer whitespace-nowrap"
               style={{ height: '30px' }}
             >
               <Plus className="w-3 h-3" />
-              <span>Kho Open Source</span>
+              <span className="hidden xl:inline">Kho Open Source</span>
+              <span className="xl:hidden">Kho OS</span>
             </button>
 
-            {/* Documentation Guides */}
-            <button
-              type="button"
-              onClick={() => setIsDocsModalOpen(true)}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
+            {/* Documentation Guides (Full Page Link & Modal) */}
+            <a
+              href="/docs"
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
                 isLight 
-                  ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
-                  : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700'
+                  ? 'bg-white hover:bg-slate-50 text-blue-700 border-[#E2DDD5]'
+                  : 'bg-[#0F172A] hover:bg-slate-800 text-cyan-400 border-slate-700'
               }`}
               style={{ height: '30px' }}
+              title="Xem Trang Tài Liệu Tổng Thể Dự Án (/docs)"
             >
               <BookOpen className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
-              <span>Hướng Dẫn</span>
-            </button>
+              <span>Docs Dự Án</span>
+            </a>
 
             {/* Infrastructure Config Gear Button */}
             <button

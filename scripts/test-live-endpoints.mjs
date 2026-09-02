@@ -1,10 +1,10 @@
 /**
  * LIVE HTTP INTEGRATION TEST SUITE
- * Tests Next.js API Routes against live server
- * Tuân thủ ZERO EMOJI POLICY
+ * Tests Next.js API Routes against live server on 127.0.0.1:3005
+ * Tuan thu ZERO EMOJI POLICY
  */
 
-const BASE_URL = 'http://localhost:3005';
+const BASE_URL = 'http://127.0.0.1:3005';
 
 let totalTests = 0;
 let passedTests = 0;
@@ -22,27 +22,8 @@ function assert(condition, name, details = '') {
   }
 }
 
-async function waitForServer(retries = 15, delay = 1000) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(`${BASE_URL}/api/health`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok || res.status === 404 || res.status === 200) {
-        return true;
-      }
-    } catch {
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  return false;
-}
-
 async function runLiveTests() {
-  console.log('--- STARTING LIVE HTTP INTEGRATION TESTS ---');
-  const isUp = await waitForServer();
-  if (!isUp) {
-    console.error('Server at localhost:3005 not responding. Exiting.');
-    process.exit(1);
-  }
+  console.log('--- STARTING LIVE HTTP INTEGRATION TESTS (127.0.0.1:3005) ---');
 
   // -------------------------------------------------------------
   // 1. ROUTE /api/9router (GET)
@@ -107,8 +88,8 @@ async function runLiveTests() {
     assert(nonAizaRes.status === 200, '2.9 POST 9Router with invalid key prefix handled safely (200 OK)');
     assert(nonAizaData.router_metadata?.total_keys_in_pool === 0, '2.10 POST 9Router strictly rejected non-AIzaSy keys (pool=0)');
 
-    // 2.5 POST with 50 keys in header
-    const mock50Keys = Array.from({ length: 50 }, (_, i) => `AIzaSyMockKeyForScaleTesting_${String(i).padStart(3, '0')}_Suffix`).join('\n');
+    // 2.5 POST with 50 keys in header (comma-separated HTTP standard)
+    const mock50Keys = Array.from({ length: 50 }, (_, i) => `AIzaSyMockKeyForScaleTesting_${String(i).padStart(3, '0')}_Suffix`).join(',');
     const scaleRes = await fetch(`${BASE_URL}/api/9router/v1/chat/completions`, {
       method: 'POST',
       headers: {
@@ -138,7 +119,7 @@ async function runLiveTests() {
     });
     assert(emptyPromptRes.status === 400, '3.1 POST /api/chat empty prompt returns 400 Bad Request');
 
-    // 3.2 Heuristic Fallback Check: Code / Function Request
+    // 3.2 Heuristic Fallback Check: Code / Function Request (Accented Vietnamese)
     const codeReqRes = await fetch(`${BASE_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -154,7 +135,7 @@ async function runLiveTests() {
     const bsReqRes = await fetch(`${BASE_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'Brainstorm sơ đồ luồng hệ thống AI' })
+      body: JSON.stringify({ prompt: 'Brainstorming sơ đồ luồng hệ thống AI' })
     });
     const bsData = await bsReqRes.json();
     assert(bsReqRes.status === 200, '3.6 POST /api/chat brainstorming returns 200 OK');
@@ -242,6 +223,8 @@ async function runLiveTests() {
 
   if (failedTests > 0) {
     process.exit(1);
+  } else {
+    console.log('\nALL LIVE HTTP INTEGRATION TESTS PASSED 100%.');
   }
 }
 
