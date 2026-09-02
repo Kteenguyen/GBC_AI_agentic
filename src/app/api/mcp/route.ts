@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
               content: [
                 {
                   type: 'text',
-                  text: `✅ [MCP] Đã chuyển tiến trình Workflow sang Node: [${args.nodeId}] với trạng thái: ${payload.statusText}!`
+                  text: `[SUCCESS] [MCP] Đã chuyển tiến trình Workflow sang Node: [${args.nodeId}] với trạng thái: ${payload.statusText}!`
                 }
               ],
               isError: false
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
               content: [
                 {
                   type: 'text',
-                  text: `📝 [MCP] Đã ghi log thành công vào Node [${args.nodeId}]: "${args.logMessage}"`
+                  text: `[LOG] [MCP] Đã ghi log thành công vào Node [${args.nodeId}]: "${args.logMessage}"`
                 }
               ],
               isError: false
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
               content: [
                 {
                   type: 'text',
-                  text: `🚀 [MCP] Đã kích hoạt chạy toàn bộ luồng Workflow CI/CD trên màn hình Web!`
+                  text: `[TRIGGER] [MCP] Đã kích hoạt chạy toàn bộ luồng Workflow CI/CD trên màn hình Web!`
                 }
               ],
               isError: false
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
               content: [
                 {
                   type: 'text',
-                  text: `🔄 [MCP] Đã reset sơ đồ Workflow về trạng thái ban đầu.`
+                  text: `[RESET] [MCP] Đã reset sơ đồ Workflow về trạng thái ban đầu.`
                 }
               ],
               isError: false

@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const guidesDir = path.join(process.cwd(), 'docs', 'guides');
@@ -18,12 +18,13 @@ const categoryMapping = {
 };
 
 const allDocs = guideFiles.map((filename, idx) => {
-  const content = fs.readFileSync(path.join(guidesDir, filename), 'utf-8');
+  const rawContent = fs.readFileSync(path.join(guidesDir, filename), 'utf-8');
+  const content = rawContent.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
   const num = filename.substring(0, 2);
   const meta = categoryMapping[num] || { category: 'Chung', categoryKey: 'general', readTime: '5 phút' };
   
   const titleMatch = content.match(/^#\s+(.+)$/m);
-  const title = titleMatch ? titleMatch[1] : filename;
+  const title = titleMatch ? titleMatch[1].trim() : filename;
   
   return {
     id: filename.replace('.md', ''),

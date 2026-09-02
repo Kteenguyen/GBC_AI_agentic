@@ -3,7 +3,24 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const WORK_DIR = process.env.WORK_ROOT || (fs.existsSync('C:\\Users\\ADMIN\\OneDrive\\Documents\\Work') ? 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work' : process.cwd());
+function getWorkspaceRoot(): string {
+  if (process.env.WORK_ROOT && fs.existsSync(process.env.WORK_ROOT)) {
+    return process.env.WORK_ROOT;
+  }
+  
+  // If current working directory is Workflow or inside Work folder, scan parent Work directory
+  const currentDir = process.cwd();
+  const parentDir = path.resolve(currentDir, '..');
+  if (fs.existsSync(parentDir) && path.basename(parentDir).toLowerCase() === 'work') {
+    return parentDir;
+  }
+  
+  if (fs.existsSync('C:\\Users\\ADMIN\\OneDrive\\Documents\\Work')) {
+    return 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work';
+  }
+  
+  return currentDir;
+}
 
 export interface LocalProjectInfo {
   id: string;
@@ -26,7 +43,7 @@ export interface LocalProjectInfo {
 const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
   {
     id: 'workflow',
-    name: 'Workflow',
+    name: 'Workflow (GBC_AI_agentic)',
     path: '/vercel/path/Workflow',
     isGitRepo: true,
     branch: 'main',
@@ -34,8 +51,8 @@ const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
     repoName: 'Kteenguyen/GBC_AI_agentic',
     gitUserName: 'Kteenguyen',
     gitUserEmail: 'nguyenkhoatai2003@gmail.com',
-    lastCommitHash: '6de5b77',
-    lastCommitMsg: 'feat: initialize GBC AI Agentic workflow',
+    lastCommitHash: 'efbf6a3',
+    lastCommitMsg: 'feat(docs-ux): add master project architecture documentation #00',
     lastCommitAuthor: 'Kteenguyen',
     lastCommitTime: 'Vừa xong',
     hasUncommittedChanges: false,
@@ -51,8 +68,8 @@ const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
     repoName: 'Kteenguyen/powertechsaigon',
     gitUserName: 'Kteenguyen',
     gitUserEmail: 'nguyenkhoatai2003@gmail.com',
-    lastCommitHash: 'f49a12c',
-    lastCommitMsg: 'feat: update production landing & contact forms',
+    lastCommitHash: '426d03d',
+    lastCommitMsg: 'update landing page',
     lastCommitAuthor: 'Kteenguyen',
     lastCommitTime: '1 ngày trước',
     hasUncommittedChanges: false,
@@ -68,8 +85,8 @@ const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
     repoName: 'huy293/CRM-GBC',
     gitUserName: 'Kteenguyen',
     gitUserEmail: 'nguyenkhoatai2003@gmail.com',
-    lastCommitHash: '8b29f01',
-    lastCommitMsg: 'fix: optimize realtime database rest query',
+    lastCommitHash: 'caaa530',
+    lastCommitMsg: 'fix: mobile and rbac',
     lastCommitAuthor: 'Kteenguyen',
     lastCommitTime: '2 ngày trước',
     hasUncommittedChanges: false,
@@ -85,8 +102,8 @@ const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
     repoName: 'huy293/global-code-team',
     gitUserName: 'Kteenguyen',
     gitUserEmail: 'nguyenkhoatai2003@gmail.com',
-    lastCommitHash: 'c90a1b2',
-    lastCommitMsg: 'chore: agent squad parity sync',
+    lastCommitHash: '8101a14',
+    lastCommitMsg: 'first commit',
     lastCommitAuthor: 'Kteenguyen',
     lastCommitTime: '3 ngày trước',
     hasUncommittedChanges: false,
@@ -94,11 +111,17 @@ const CLOUD_FALLBACK_PROJECTS: LocalProjectInfo[] = [
   }
 ];
 
+const IGNORED_FOLDERS = new Set([
+  '.git', '.agents', '.claude', '.gemini', '.github', '.vscode', '.idea',
+  'node_modules', 'dist', 'build', '.next', 'out', 'bin', 'Data', 'CV', 'VAT', 'Báo giá', 'contract'
+]);
+
 export async function GET() {
   try {
+    const workDir = getWorkspaceRoot();
     const projects: LocalProjectInfo[] = [];
 
-    if (!fs.existsSync(WORK_DIR)) {
+    if (!fs.existsSync(workDir)) {
       return NextResponse.json({
         success: true,
         total: CLOUD_FALLBACK_PROJECTS.length,
@@ -107,11 +130,16 @@ export async function GET() {
       });
     }
 
-    const entries = fs.readdirSync(WORK_DIR, { withFileTypes: true });
+    const entries = fs.readdirSync(workDir, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        const projPath = path.join(WORK_DIR, entry.name);
+        // Exclude hidden folders (.agents, .claude, .gemini, .git, etc.) and non-project folders
+        if (entry.name.startsWith('.') || IGNORED_FOLDERS.has(entry.name)) {
+          continue;
+        }
+
+        const projPath = path.join(workDir, entry.name);
         const gitPath = path.join(projPath, '.git');
         const isGit = fs.existsSync(gitPath);
 
@@ -214,10 +242,12 @@ export async function GET() {
       });
     }
 
-    // Sort active Workflow first, then others alphabetically
+    // Sort: Workflow first, then active Git repos, then others alphabetically
     projects.sort((a, b) => {
       if (a.name === 'Workflow') return -1;
       if (b.name === 'Workflow') return 1;
+      if (a.isGitRepo && !b.isGitRepo) return -1;
+      if (!a.isGitRepo && b.isGitRepo) return 1;
       return a.name.localeCompare(b.name);
     });
 

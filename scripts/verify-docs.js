@@ -40,13 +40,18 @@ files.forEach((f) => {
   if (hasEmoji) allClean = false;
 });
 
+const docsDataPath = path.join(__dirname, '..', 'src', 'lib', 'docsData.ts');
+const docsDataContent = fs.readFileSync(docsDataPath, 'utf-8');
+const docsDataHasEmoji = emojiRegex.test(docsDataContent);
+console.log('src/lib/docsData.ts HasEmoji: ' + docsDataHasEmoji);
+
 const routePath = path.join(__dirname, '..', 'src', 'app', 'api', 'docs', 'route.ts');
 const routeContent = fs.readFileSync(routePath, 'utf-8');
 const routeHasEmoji = emojiRegex.test(routeContent);
 console.log('src/app/api/docs/route.ts HasEmoji: ' + routeHasEmoji);
 
-if (allClean && !routeHasEmoji && files.length === 8) {
-  console.log('>>> [SUCCESS] TAT CA 8 TAI LIEU VA ROUTE API DAT CHUAN ZERO EMOJI 100% <<<');
+if (allClean && !routeHasEmoji && !docsDataHasEmoji && files.length === 9) {
+  console.log('>>> [SUCCESS] TAT CA 9 TAI LIEU VA ROUTE API DAT CHUAN ZERO EMOJI VA INTEGRITY 100% <<<');
 } else {
   console.error('>>> [ERROR] PHAT HIEN LOI HOAC EMOJI <<<');
   process.exit(1);

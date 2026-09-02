@@ -1,4 +1,4 @@
-﻿# TÀI LIỆU TỔNG THỂ DỰ ÁN GBC AI AGENTIC: KIẾN TRÚC, INPUT/OUTPUT & LUỒNG VẬN HÀNH
+# TÀI LIỆU TỔNG THỂ DỰ ÁN GBC AI AGENTIC: KIẾN TRÚC, INPUT/OUTPUT & LUỒNG VẬN HÀNH
 
 Dự án: **Workflow (GBC_AI_agentic)**
 Production URL: **https://agent.globalcode.com.vn**
@@ -48,12 +48,12 @@ Hệ thống **GBC AI Agentic Workflow** là nền tảng quản trị và tự 
                                                ▼
         ┌─────────────────────────────────────────────────────────────────────────────┐
         │ 8-STAGE DEVOPS PIPELINE ENGINE (/api/pipeline)                              │
-        │ Jenkins CI ➔ OWASP CVE ➔ SonarQube Gate A ➔ Trivy ➔ Docker ➔ ArgoCD ➔ K8s   │
+        │ Jenkins CI -> OWASP CVE -> SonarQube Gate A -> Trivy -> Docker -> ArgoCD -> K8s   │
         └──────────────────────────────────────┬──────────────────────────────────────┘
                                                │
                                                ▼
         ┌─────────────────────────────────────────────────────────────────────────────┐
-        │ BÀN GIAO & VERCEL PRODUCTION PARITY (TypeScript 0 Lỗi ➔ agent.globalcode.com.vn)│
+        │ BÀN GIAO & VERCEL PRODUCTION PARITY (TypeScript 0 Lỗi -> agent.globalcode.com.vn)│
         └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
