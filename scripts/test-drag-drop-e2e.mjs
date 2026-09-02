@@ -4,7 +4,7 @@
  * Standard: ZERO EMOJI POLICY
  */
 
-import { OPEN_SOURCE_DEVOPS_CATALOG } from '../src/lib/devopsCatalog.js';
+import { OPEN_SOURCE_DEVOPS_CATALOG } from '../src/lib/devopsCatalog.ts';
 
 let totalTests = 0;
 let passedTests = 0;

@@ -91,6 +91,21 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     tags: ['git', 'ci', 'self-hosted']
   },
 
+  {
+    id: 'gitlab-ci',
+    name: 'GitLab CI / CD Engine',
+    category: 'CI',
+    license: 'Open Source (MIT)',
+    description: 'Nền tảng CI/CD tích hợp mạnh mẽ với file .gitlab-ci.yml, hỗ trợ Auto DevOps và multi-runner.',
+    defaultPort: 80,
+    configFields: [
+      { key: 'serverUrl', label: 'GitLab Instance URL', type: 'text', placeholder: 'Ví dụ: https://gitlab.com', required: true },
+      { key: 'apiToken', label: 'Private Token', type: 'password', placeholder: 'Nhập GitLab Private Token', required: true }
+    ],
+    docsUrl: 'https://docs.gitlab.com/ee/ci/',
+    tags: ['gitlab', 'ci', 'pipeline', 'runners']
+  },
+
   // 2. Security & Quality Gates
   {
     id: 'sonarqube-oss',
@@ -134,6 +149,19 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     tags: ['security', 'trivy', 'secrets', 'container-scan']
   },
   {
+    id: 'snyk-security',
+    name: 'Snyk CLI Security Scanner',
+    category: 'SECURITY',
+    license: 'Developer Free Tier',
+    description: 'Tự động phát hiện và khắc phục các lỗ hổng bảo mật trong mã nguồn, open-source dependencies và containers.',
+    configFields: [
+      { key: 'apiToken', label: 'Snyk API Token', type: 'password', placeholder: 'Nhập Snyk Auth Token', required: true },
+      { key: 'severityThreshold', label: 'Severity Threshold', type: 'text', placeholder: 'high', required: false, defaultValue: 'high' }
+    ],
+    docsUrl: 'https://docs.snyk.io/',
+    tags: ['security', 'snyk', 'vulnerabilities', 'sca']
+  },
+  {
     id: 'semgrep-oss',
     name: 'Semgrep OSS',
     category: 'SECURITY',
@@ -144,6 +172,18 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     ],
     docsUrl: 'https://semgrep.dev/docs/',
     tags: ['security', 'sast', 'rules', 'fast']
+  },
+  {
+    id: 'grype-scanner',
+    name: 'Grype Vulnerability Scanner',
+    category: 'SECURITY',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Công cụ quét lỗ hổng siêu tốc cho Container Images và Filesystem của Anchore, hỗ trợ chuẩn SBOM.',
+    configFields: [
+      { key: 'scope', label: 'Phạm Vi Quét', type: 'text', placeholder: 'AllLayers hoặc Squashed', required: false, defaultValue: 'AllLayers' }
+    ],
+    docsUrl: 'https://github.com/anchore/grype',
+    tags: ['security', 'grype', 'sbom', 'anchore']
   },
   {
     id: 'gitleaks-scanner',
@@ -174,6 +214,31 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     tags: ['docker', 'buildkit', 'containers']
   },
   {
+    id: 'podman-engine',
+    name: 'Podman (Rootless Containers)',
+    category: 'BUILD',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Công cụ chạy và đóng gói container không cần Daemon (Daemonless) và bảo mật không cần Root.',
+    configFields: [
+      { key: 'socketUrl', label: 'Podman Service Socket', type: 'text', placeholder: 'Ví dụ: unix:///run/user/1000/podman/podman.sock', required: true }
+    ],
+    docsUrl: 'https://podman.io/',
+    tags: ['podman', 'rootless', 'containers', 'linux']
+  },
+  {
+    id: 'kaniko-builder',
+    name: 'Kaniko Container Builder',
+    category: 'BUILD',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Công cụ build container images trực tiếp bên trong Kubernetes cluster mà không cần Docker daemon privilege.',
+    configFields: [
+      { key: 'destination', label: 'Destination Registry Path', type: 'text', placeholder: 'Ví dụ: gcr.io/my-project/my-image:tag', required: true },
+      { key: 'context', label: 'Build Context', type: 'text', placeholder: 'dir:///workspace', required: true, defaultValue: 'dir:///workspace' }
+    ],
+    docsUrl: 'https://github.com/GoogleContainerTools/kaniko',
+    tags: ['kaniko', 'build', 'k8s', 'rootless']
+  },
+  {
     id: 'harbor-registry',
     name: 'Harbor Cloud Native Registry',
     category: 'BUILD',
@@ -188,18 +253,6 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     ],
     docsUrl: 'https://goharbor.io/docs/',
     tags: ['registry', 'cncf', 'security', 'enterprise']
-  },
-  {
-    id: 'podman-engine',
-    name: 'Podman (Rootless Containers)',
-    category: 'BUILD',
-    license: 'Open Source (Apache 2.0)',
-    description: 'Công cụ chạy và đóng gói container không cần Daemon (Daemonless) và bảo mật không cần Root.',
-    configFields: [
-      { key: 'socketUrl', label: 'Podman Service Socket', type: 'text', placeholder: 'Ví dụ: unix:///run/user/1000/podman/podman.sock', required: true }
-    ],
-    docsUrl: 'https://podman.io/',
-    tags: ['podman', 'rootless', 'containers', 'linux']
   },
 
   // 4. GitOps & Deployment
@@ -218,6 +271,46 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     ],
     docsUrl: 'https://argo-cd.readthedocs.io/',
     tags: ['gitops', 'argocd', 'k8s', 'cncf']
+  },
+  {
+    id: 'fluxcd-gitops',
+    name: 'Flux CD GitOps Operator',
+    category: 'GITOPS',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Bộ điều khiển GitOps CNCF Graduated đồng bộ tự động Kubernetes manifests và Helm releases từ Git.',
+    configFields: [
+      { key: 'gitRepository', label: 'Git Repository URL', type: 'text', placeholder: 'Ví dụ: https://github.com/org/gitops-repo', required: true },
+      { key: 'branch', label: 'Target Git Branch', type: 'text', placeholder: 'main', required: true, defaultValue: 'main' }
+    ],
+    docsUrl: 'https://fluxcd.io/docs/',
+    tags: ['gitops', 'flux', 'fluxcd', 'kubernetes']
+  },
+  {
+    id: 'k3s-kubernetes',
+    name: 'K3s Lightweight Kubernetes',
+    category: 'DEPLOY',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Bản phân phối Kubernetes siêu nhẹ của Rancher, tối ưu hóa cho môi trường Edge và máy cá nhân.',
+    configFields: [
+      { key: 'kubeconfigPath', label: 'Kubeconfig File Path', type: 'text', placeholder: 'Ví dụ: ~/.kube/config hoặc C:\\Users\\...\\.kube\\config', required: true },
+      { key: 'clusterContext', label: 'Cluster Context Name', type: 'text', placeholder: 'default', required: false, defaultValue: 'default' }
+    ],
+    docsUrl: 'https://docs.k3s.io/',
+    tags: ['kubernetes', 'k3s', 'lightweight', 'rancher']
+  },
+  {
+    id: 'openshift-origin',
+    name: 'Red Hat OpenShift (OKD)',
+    category: 'DEPLOY',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Nền tảng Kubernetes cấp doanh nghiệp tự động hóa triển khai, bảo mật nhiều tầng và quản trị ứng dụng.',
+    defaultPort: 6443,
+    configFields: [
+      { key: 'clusterApiUrl', label: 'OpenShift API Server URL', type: 'text', placeholder: 'Ví dụ: https://api.cluster.example.com:6443', required: true },
+      { key: 'token', label: 'ServiceAccount Bearer Token', type: 'password', placeholder: 'Nhập OpenShift Token', required: true }
+    ],
+    docsUrl: 'https://docs.okd.io/',
+    tags: ['openshift', 'redhat', 'enterprise', 'kubernetes']
   },
   {
     id: 'coolify-paas',
@@ -246,19 +339,6 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     ],
     docsUrl: 'https://docs.portainer.io/',
     tags: ['portainer', 'docker-gui', 'management']
-  },
-  {
-    id: 'k3s-kubernetes',
-    name: 'K3s Lightweight Kubernetes',
-    category: 'DEPLOY',
-    license: 'Open Source (Apache 2.0)',
-    description: 'Bản phân phối Kubernetes siêu nhẹ của Rancher, tối ưu hóa cho môi trường Edge và máy cá nhân.',
-    configFields: [
-      { key: 'kubeconfigPath', label: 'Kubeconfig File Path', type: 'text', placeholder: 'Ví dụ: ~/.kube/config hoặc C:\\Users\\...\\.kube\\config', required: true },
-      { key: 'clusterContext', label: 'Cluster Context Name', type: 'text', placeholder: 'default', required: false, defaultValue: 'default' }
-    ],
-    docsUrl: 'https://docs.k3s.io/',
-    tags: ['kubernetes', 'k3s', 'lightweight', 'rancher']
   },
 
   // 5. Telemetry & Monitoring
@@ -291,6 +371,46 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
     tags: ['grafana', 'dashboards', 'telemetry']
   },
   {
+    id: 'victoriametrics-tsdb',
+    name: 'VictoriaMetrics TSDB',
+    category: 'MONITOR',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Cơ sở dữ liệu Time-Series tốc độ cao, tiết kiệm 70% RAM so với Prometheus và tương thích hoàn toàn PromQL.',
+    defaultPort: 8428,
+    configFields: [
+      { key: 'serverUrl', label: 'VictoriaMetrics URL', type: 'text', placeholder: 'Ví dụ: http://localhost:8428', required: true }
+    ],
+    docsUrl: 'https://docs.victoriametrics.com/',
+    tags: ['victoriametrics', 'tsdb', 'prometheus', 'metrics']
+  },
+  {
+    id: 'zabbix-monitoring',
+    name: 'Zabbix Enterprise Monitoring',
+    category: 'MONITOR',
+    license: 'Open Source (AGPLv3)',
+    description: 'Giải pháp giám sát toàn diện mạng, máy chủ, máy ảo và dịch vụ đám mây quy mô lớn.',
+    defaultPort: 80,
+    configFields: [
+      { key: 'serverUrl', label: 'Zabbix Web URL', type: 'text', placeholder: 'Ví dụ: http://zabbix.local/api_jsonrpc.php', required: true },
+      { key: 'apiToken', label: 'Zabbix API Token', type: 'password', placeholder: 'Nhập Zabbix Auth Token', required: true }
+    ],
+    docsUrl: 'https://www.zabbix.com/documentation/',
+    tags: ['zabbix', 'monitoring', 'network', 'servers']
+  },
+  {
+    id: 'grafana-loki',
+    name: 'Grafana Loki Log Engine',
+    category: 'MONITOR',
+    license: 'Open Source (AGPLv3)',
+    description: 'Hệ thống tổng hợp và truy vấn logs tập trung lấy cảm hứng từ Prometheus, chỉ lập chỉ mục metadata để tiết kiệm chi phí.',
+    defaultPort: 3100,
+    configFields: [
+      { key: 'serverUrl', label: 'Loki Gateway URL', type: 'text', placeholder: 'Ví dụ: http://loki:3100', required: true }
+    ],
+    docsUrl: 'https://grafana.com/docs/loki/latest/',
+    tags: ['loki', 'grafana', 'logs', 'telemetry']
+  },
+  {
     id: 'uptime-kuma',
     name: 'Uptime Kuma',
     category: 'MONITOR',
@@ -305,6 +425,19 @@ export const OPEN_SOURCE_DEVOPS_CATALOG: DevOpsToolDefinition[] = [
   },
 
   // 6. Notifications & Alerts
+  {
+    id: 'prometheus-alertmanager',
+    name: 'Prometheus Alertmanager',
+    category: 'ALERT',
+    license: 'Open Source (Apache 2.0)',
+    description: 'Bộ xử lý cảnh báo chính thức của hệ sinh thái Prometheus, hỗ trợ gom nhóm (dedup), định tuyến và tắt tiếng (silence).',
+    defaultPort: 9093,
+    configFields: [
+      { key: 'serverUrl', label: 'Alertmanager URL', type: 'text', placeholder: 'Ví dụ: http://alertmanager:9093', required: true }
+    ],
+    docsUrl: 'https://prometheus.io/docs/alerting/latest/alertmanager/',
+    tags: ['alertmanager', 'prometheus', 'routing', 'alerts']
+  },
   {
     id: 'telegram-bot-alert',
     name: 'Telegram Bot Notification Webhook',

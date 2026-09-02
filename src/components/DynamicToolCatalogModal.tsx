@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -20,20 +20,24 @@ import {
   Sparkles
 } from 'lucide-react';
 import { DevOpsToolDefinition } from '@/lib/devopsCatalog';
+import { OfficialToolIcon } from '@/components/BrandLogos';
 
 interface DynamicToolCatalogModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddToolToPipeline: (tool: DevOpsToolDefinition, configuredValues: Record<string, any>) => void;
+  onAddToolToPipeline: (tool: DevOpsToolDefinition, configuredValues: Record<string, any>, targetBox?: 'CI_BOX' | 'CD_BOX') => void;
   activePipelineToolIds: string[];
+  theme?: 'light' | 'dark';
 }
 
 export default function DynamicToolCatalogModal({
   isOpen,
   onClose,
   onAddToolToPipeline,
-  activePipelineToolIds
+  activePipelineToolIds,
+  theme = 'light'
 }: DynamicToolCatalogModalProps) {
+  const isLight = theme === 'light';
   const [tools, setTools] = useState<DevOpsToolDefinition[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -60,89 +64,107 @@ export default function DynamicToolCatalogModal({
       const res = await fetch(`/api/catalog?${queryParams.toString()}`);
       const data = await res.json();
       if (data.success) {
-        setTools(data.tools);
+        setTools(data.tools || []);
         if (data.categories) setCategories(data.categories);
       }
     } catch (e) {
-      console.error('Failed to fetch catalog:', e);
+      console.error('Lỗi khi tải kho công cụ:', e);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleStartConfiguring = (tool: DevOpsToolDefinition) => {
+  const handleOpenConfig = (tool: DevOpsToolDefinition) => {
     setConfiguringTool(tool);
-    const initialVals: Record<string, any> = {};
+    // Preset default values
+    const initial: Record<string, any> = {};
     tool.configFields.forEach(f => {
-      initialVals[f.key] = f.defaultValue !== undefined ? f.defaultValue : '';
+      initial[f.key] = f.defaultValue !== undefined ? f.defaultValue : '';
     });
-    setFormValues(initialVals);
+    setFormValues(initial);
   };
 
-  const handleConfirmAddToPipeline = () => {
+  const handleSaveAndAdd = (targetBox?: 'CI_BOX' | 'CD_BOX') => {
     if (!configuringTool) return;
-    onAddToolToPipeline(configuringTool, formValues);
+    onAddToolToPipeline(configuringTool, formValues, targetBox);
     setConfiguringTool(null);
+    onClose();
   };
 
   if (!isOpen) return null;
 
-  const getCategoryIcon = (cat: string) => {
-    switch (cat) {
-      case 'CI': return <Layers className="w-3.5 h-3.5 text-blue-400" />;
-      case 'SECURITY': return <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />;
-      case 'BUILD': return <Server className="w-3.5 h-3.5 text-amber-400" />;
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'CI': return <Server className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-blue-400'}`} />;
+      case 'SECURITY': return <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />;
+      case 'BUILD': return <Layers className={`w-3.5 h-3.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />;
       case 'GITOPS':
-      case 'DEPLOY': return <Cpu className="w-3.5 h-3.5 text-cyan-400" />;
-      case 'MONITOR': return <Activity className="w-3.5 h-3.5 text-purple-400" />;
-      case 'ALERT': return <Bell className="w-3.5 h-3.5 text-rose-400" />;
-      default: return <Zap className="w-3.5 h-3.5 text-slate-400" />;
+      case 'DEPLOY': return <Cpu className={`w-3.5 h-3.5 ${isLight ? 'text-purple-600' : 'text-purple-400'}`} />;
+      case 'MONITOR': return <Activity className={`w-3.5 h-3.5 ${isLight ? 'text-cyan-600' : 'text-cyan-400'}`} />;
+      case 'ALERT': return <Bell className={`w-3.5 h-3.5 ${isLight ? 'text-rose-600' : 'text-rose-400'}`} />;
+      default: return <Sparkles className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-blue-400'}`} />;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-[#0A0F1E] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className={`relative w-full max-w-5xl max-h-[90vh] border rounded-3xl shadow-2xl flex flex-col overflow-hidden transition ${
+        isLight ? 'bg-white border-[#E2DDD5] text-slate-900' : 'bg-[#0A0F1E] border-slate-700/80 text-slate-100'
+      }`}>
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0E1526]">
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${
+          isLight ? 'bg-[#EFECE6] border-[#E2DDD5]' : 'bg-[#0E1526] border-slate-800'
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shadow-xs ${
+              isLight ? 'bg-white border-[#E2DDD5] text-blue-600' : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+            }`}>
               <Layers className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-100">Kho Công Cụ Open Source & Nền Tảng CI/CD Miễn Phí</h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-500/40">
+                <h2 className={`text-base font-bold ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
+                  Kho Công Cụ Open Source & Nền Tảng CI/CD Miễn Phí
+                </h2>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                  isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-blue-950 text-blue-300 border-blue-500/40'
+                }`}>
                   DYNAMIC CATALOG
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Chọn nền tảng Open Source bất kỳ, nhập cấu hình và đưa trực tiếp vào sơ đồ Workflow của bạn.
+              <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                Chọn nền tảng Open Source bất kỳ, nạp nhanh vào sơ đồ Workflow của bạn.
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition"
+            className={`p-1.5 rounded-lg transition border cursor-pointer ${
+              isLight 
+                ? 'bg-white hover:bg-slate-100 text-slate-600 border-[#E2DDD5]' 
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border-transparent'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="px-6 py-3 border-b border-slate-800/80 bg-[#070B14] flex flex-wrap items-center justify-between gap-3">
+        <div className={`px-6 py-3 border-b flex flex-wrap items-center justify-between gap-3 ${
+          isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-[#070B14] border-slate-800/80'
+        }`}>
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full sm:max-w-xl">
             {['ALL', 'CI', 'SECURITY', 'BUILD', 'GITOPS', 'DEPLOY', 'MONITOR', 'ALERT'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer border ${
                   selectedCategory === cat
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-[#0E1526] text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-slate-800'
+                    ? (isLight ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/20')
+                    : (isLight ? 'bg-white text-slate-700 hover:bg-slate-100 border-[#E2DDD5]' : 'bg-[#0E1526] text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border-slate-800')
                 }`}
               >
                 {getCategoryIcon(cat)}
@@ -159,16 +181,22 @@ export default function DynamicToolCatalogModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm theo tên, tag, docker..."
-              className="w-full bg-[#0E1526] border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition font-mono"
+              className={`w-full rounded-xl pl-9 pr-3 py-1.5 text-xs outline-hidden transition border ${
+                isLight 
+                  ? 'bg-white border-[#E2DDD5] text-slate-900 placeholder-slate-400 focus:border-blue-500' 
+                  : 'bg-[#0E1526] border-slate-700/80 text-slate-200 placeholder-slate-500 focus:border-blue-500 font-mono'
+              }`}
             />
           </div>
         </div>
 
         {/* Tool Grid */}
-        <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={`flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${
+          isLight ? 'bg-[#F7F5F0]' : 'bg-[#0A0F1E]'
+        }`}>
           {isLoading ? (
             <div className="col-span-full py-16 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
-              <div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
               <span className="text-xs font-mono">Đang tải danh mục nền tảng Open Source...</span>
             </div>
           ) : tools.length === 0 ? (
@@ -182,168 +210,107 @@ export default function DynamicToolCatalogModal({
               return (
                 <div
                   key={tool.id}
-                  className={`flex flex-col justify-between p-4 rounded-xl border transition group ${
-                    isAlreadyInPipeline
-                      ? 'bg-[#0E1B2E] border-blue-500/50 shadow-md shadow-blue-900/10'
-                      : 'bg-[#0D1424] border-slate-800 hover:border-slate-700 hover:bg-[#111A30]'
+                  className={`p-5 rounded-2xl border transition-all flex flex-col justify-between shadow-xs ${
+                    isLight 
+                      ? 'bg-white border-[#E2DDD5] hover:border-blue-400' 
+                      : 'bg-[#0D1424] border-slate-800 hover:border-slate-700'
                   }`}
                 >
-                  <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-700">
-                          {getCategoryIcon(tool.category)}
+                  <div className="space-y-3">
+                    {/* Card Top */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 shadow-xs ${
+                          isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-slate-800/80 border-slate-700'
+                        }`}>
+                          <OfficialToolIcon toolIdOrName={tool.id} className="w-6 h-6" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-slate-200 group-hover:text-blue-300 transition">
+                          <h3 className={`text-xs font-bold ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
                             {tool.name}
-                          </h4>
-                          <span className="text-[10px] font-mono text-slate-400 block">
+                          </h3>
+                          <span className={`text-[10px] font-mono block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                             {tool.license}
                           </span>
                         </div>
                       </div>
 
-                      {isAlreadyInPipeline && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                          <Check className="w-2.5 h-2.5" /> Đã thêm
-                        </span>
-                      )}
+                      <span className={`px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase ${
+                        tool.category === 'CI' ? (isLight ? 'bg-blue-50 text-blue-700' : 'bg-blue-500/10 text-blue-400') :
+                        tool.category === 'SECURITY' ? (isLight ? 'bg-emerald-50 text-emerald-700' : 'bg-emerald-500/10 text-emerald-400') :
+                        tool.category === 'BUILD' ? (isLight ? 'bg-amber-50 text-amber-700' : 'bg-amber-500/10 text-amber-400') :
+                        (isLight ? 'bg-purple-50 text-purple-700' : 'bg-purple-500/10 text-purple-400')
+                      }`}>
+                        {tool.category}
+                      </span>
                     </div>
 
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                    {/* Description */}
+                    <p className={`text-[11.5px] leading-relaxed line-clamp-2 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
                       {tool.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {tool.tags.map(t => (
-                        <span key={t} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900/80 text-slate-400 border border-slate-800">
-                          #{t}
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1">
+                      {tool.tags.map(tag => (
+                        <span 
+                          key={tag} 
+                          className={`px-1.5 py-0.5 rounded text-[9.5px] font-mono border ${
+                            isLight ? 'bg-[#FAF8F5] border-[#E2DDD5] text-slate-600' : 'bg-[#0B101E] border-slate-800 text-slate-400'
+                          }`}
+                        >
+                          #{tag}
                         </span>
                       ))}
-                      {tool.defaultPort && (
-                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-950/60 text-blue-300 border border-blue-800/40">
-                          Port {tool.defaultPort}
-                        </span>
-                      )}
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                  {/* Card Bottom Actions */}
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between gap-2 ${
+                    isLight ? 'border-slate-100' : 'border-slate-800/80'
+                  }`}>
                     <a
                       href={tool.docsUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 transition"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>Tài liệu</span>
-                    </a>
-
-                    <button
-                      onClick={() => handleStartConfiguring(tool)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                        isAlreadyInPipeline
-                          ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                          : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20'
+                      className={`text-[11px] font-bold flex items-center gap-1 transition ${
+                        isLight ? 'text-slate-500 hover:text-blue-600' : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>{isAlreadyInPipeline ? 'Sửa Cấu Hình' : 'Thêm Vào Workflow'}</span>
-                    </button>
+                      <span>Tài liệu</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    {isAlreadyInPipeline ? (
+                      <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Đã tích hợp</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => onAddToolToPipeline(tool, {}, 'CI_BOX')}
+                          className="px-2.5 py-1 rounded-xl text-[10.5px] font-bold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1 cursor-pointer shadow-xs"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>+ CI</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onAddToolToPipeline(tool, {}, 'CD_BOX')}
+                          className="px-2.5 py-1 rounded-xl text-[10.5px] font-bold bg-purple-600 hover:bg-purple-500 text-white transition flex items-center gap-1 cursor-pointer shadow-xs"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>+ CD</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })
           )}
-        </div>
-
-        {/* Configuration Drawer / Submodal */}
-        {configuringTool && (
-          <div className="absolute inset-0 z-20 bg-black/70 backdrop-blur-sm flex justify-end animate-in fade-in duration-150">
-            <div className="w-full max-w-lg h-full bg-[#0D1424] border-l border-slate-700 p-6 flex flex-col justify-between shadow-2xl animate-in slide-in-from-right duration-200 overflow-y-auto">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400">
-                      <Sliders className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-100">{configuringTool.name}</h3>
-                      <span className="text-[11px] font-mono text-blue-400">Cấu hình tham số kết nối</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setConfiguringTool(null)}
-                    className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {configuringTool.configFields.map((field) => (
-                    <div key={field.key} className="space-y-1.5">
-                      <label className="text-xs text-slate-300 font-bold block">
-                        {field.label} {field.required && <span className="text-rose-400">*</span>}
-                      </label>
-                      {field.type === 'boolean' ? (
-                        <select
-                          value={String(formValues[field.key] ?? false)}
-                          onChange={(e) => setFormValues({ ...formValues, [field.key]: e.target.value === 'true' })}
-                          className="w-full bg-[#070B14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono"
-                        >
-                          <option value="true">Bật (true)</option>
-                          <option value="false">Tắt (false)</option>
-                        </select>
-                      ) : (
-                        <input
-                          type={field.type}
-                          value={formValues[field.key] || ''}
-                          onChange={(e) => setFormValues({ ...formValues, [field.key]: e.target.value })}
-                          placeholder={field.placeholder}
-                          className="w-full bg-[#070B14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-blue-200 font-mono focus:border-blue-500 focus:outline-none transition"
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-slate-800 flex items-center justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setConfiguringTool(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 transition"
-                >
-                  Hủy Bỏ
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleConfirmAddToPipeline}
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition shadow-lg shadow-blue-600/30 flex items-center gap-2"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Xác Nhận & Đưa Vào Workflow</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-800 bg-[#0E1526]">
-          <div className="text-xs text-slate-400 font-mono">
-            Tổng số: <span className="text-blue-400 font-bold">{tools.length}</span> nền tảng Open Source miễn phí
-          </div>
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition"
-          >
-            Đóng
-          </button>
         </div>
       </div>
     </div>

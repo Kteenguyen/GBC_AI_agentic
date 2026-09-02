@@ -375,34 +375,139 @@ export const AlertmanagerLogo: React.FC<{ className?: string }> = ({ className =
   </svg>
 );
 
+// 30. Official Gitleaks Logo (Security Secret Scanner Shield & Keyhole)
+export const GitleaksLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0F172A" stroke="#F43F5E" strokeWidth="1.5" />
+    <path d="M16 6L23 9.5V16C23 21 19.5 24.5 16 26C12.5 24.5 9 21 9 16V9.5L16 6Z" fill="#F43F5E" fillOpacity="0.15" stroke="#F43F5E" strokeWidth="1.8" />
+    <circle cx="16" cy="14" r="2.2" fill="#F43F5E" />
+    <path d="M15 16H17L17.5 20H14.5L15 16Z" fill="#F43F5E" />
+    <circle cx="16" cy="14" r="0.8" fill="#0F172A" />
+  </svg>
+);
+
+// 31. Official Harbor Logo (CNCF Helm Ship Wheel & Anchor)
+export const HarborLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#082846" stroke="#60B5CC" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="9" stroke="#60B5CC" strokeWidth="1.8" fill="none" />
+    <circle cx="16" cy="16" r="3" fill="#60B5CC" />
+    <line x1="16" y1="4" x2="16" y2="28" stroke="#60B5CC" strokeWidth="1.8" strokeLinecap="round" />
+    <line x1="4" y1="16" x2="28" y2="16" stroke="#60B5CC" strokeWidth="1.8" strokeLinecap="round" />
+    <line x1="7.5" y1="7.5" x2="24.5" y2="24.5" stroke="#60B5CC" strokeWidth="1.8" strokeLinecap="round" />
+    <line x1="7.5" y1="24.5" x2="24.5" y2="7.5" stroke="#60B5CC" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+// 32. Official Coolify Logo (Self-Hosted PaaS Hexagon Grid)
+export const CoolifyLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#18122B" stroke="#8B5CF6" strokeWidth="1.5" />
+    <polygon points="16 6 25 11 25 21 16 26 7 21 7 11" fill="#8B5CF6" fillOpacity="0.25" stroke="#A78BFA" strokeWidth="1.8" />
+    <path d="M16 6V26M7 11L25 21M7 21L25 11" stroke="#8B5CF6" strokeWidth="1.2" />
+    <circle cx="16" cy="16" r="3" fill="#C4B5FD" />
+  </svg>
+);
+
+// 33. Official Portainer Logo (Layered Container GUI Blocks)
+export const PortainerLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0A1E24" stroke="#13BEBB" strokeWidth="1.5" />
+    <rect x="7" y="8" width="8" height="6" rx="1.5" fill="#13BEBB" />
+    <rect x="17" y="8" width="8" height="6" rx="1.5" fill="#13BEBB" />
+    <rect x="7" y="16" width="8" height="6" rx="1.5" fill="#0EA5E9" />
+    <rect x="17" y="16" width="8" height="6" rx="1.5" fill="#13BEBB" />
+    <circle cx="11" cy="25" r="1.5" fill="#13BEBB" />
+    <circle cx="21" cy="25" r="1.5" fill="#13BEBB" />
+  </svg>
+);
+
+// 34. Official Uptime Kuma Logo (Heartbeat Pulse & Status Monitor)
+export const UptimeKumaLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#06281E" stroke="#10B981" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="9" stroke="#10B981" strokeWidth="1.8" fill="none" strokeDasharray="3 3" />
+    <path d="M7 16H11L13.5 10L17.5 22L20.5 14L22.5 16H25" stroke="#34D399" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="16" cy="16" r="2" fill="#10B981" />
+  </svg>
+);
+
+// 35. Official Telegram Logo (Authentic Paper Airplane)
+export const TelegramLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#229ED9" />
+    <path d="M7.5 15.5L24 9L20.5 24L15.5 19.5L12.5 22.5V18.5L21.5 12.5L11.5 17.5L7.5 15.5Z" fill="#FFFFFF" stroke="#FFFFFF" strokeWidth="0.5" strokeLinejoin="round" />
+    <path d="M15.5 19.5L12.5 18.5L21.5 12.5L15.5 19.5Z" fill="#D2EBF7" />
+  </svg>
+);
+
+// 36. Official Discord Logo (Authentic Clyde Mascot Blurple)
+export const DiscordLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#5865F2" />
+    <path d="M22.5 10.5C21.2 9.9 19.8 9.5 18.5 9.3C18.3 9.7 18.1 10.2 18 10.5C16.5 10.3 15.5 10.3 14 10.5C13.9 10.2 13.7 9.7 13.5 9.3C12.2 9.5 10.8 9.9 9.5 10.5C7 14.3 6.3 18 6.6 21.6C8.3 22.8 9.9 23.6 11.5 24.1C11.9 23.5 12.3 22.9 12.6 22.2C12 22 11.5 21.7 11 21.4C11.1 21.3 11.2 21.2 11.4 21.1C14.3 22.4 17.7 22.4 20.6 21.1C20.8 21.2 20.9 21.3 21 21.4C20.5 21.7 20 22 19.4 22.2C19.7 22.9 20.1 23.5 20.5 24.1C22.1 23.6 23.7 22.8 25.4 21.6C25.8 17.4 24.7 13.8 22.5 10.5ZM12.5 19C11.7 19 11 18.3 11 17.5C11 16.7 11.7 16 12.5 16C13.3 16 14 16.7 14 17.5C14 18.3 13.3 19 12.5 19ZM19.5 19C18.7 19 18 18.3 18 17.5C18 16.7 18.7 16 19.5 16C20.3 16 21 16.7 21 17.5C21 18.3 20.3 19 19.5 19Z" fill="#FFFFFF" />
+  </svg>
+);
+
+// 37. Official K3s Logo (Lightweight Rancher Kubernetes)
+export const K3sLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#1B2A4A" stroke="#FFC600" strokeWidth="1.5" />
+    <path d="M8 12L16 7L24 12V20L16 25L8 20V12Z" fill="#2453FF" fillOpacity="0.2" stroke="#FFC600" strokeWidth="1.8" />
+    <text x="16" y="19" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="bold" fontFamily="sans-serif">k3s</text>
+  </svg>
+);
+
 // Universal Official Tool Logo Dispatcher
 export const OfficialToolIcon: React.FC<{ toolIdOrName: string; className?: string }> = ({ toolIdOrName, className = "w-7 h-7" }) => {
   const key = toolIdOrName.toLowerCase();
+  
+  // Specific Communication & Alerting Channels (checked prior to generic alert keywords)
+  if (key.includes('telegram')) return <TelegramLogo className={className} />;
+  if (key.includes('discord')) return <DiscordLogo className={className} />;
+  if (key.includes('gmail') || key.includes('mail') || key.includes('smtp')) return <GmailLogo className={className} />;
+  if (key.includes('alertmanager') || key.includes('alert')) return <AlertmanagerLogo className={className} />;
+
+  // Specific Logging / TSDB (checked prior to generic dashboard keywords)
+  if (key.includes('loki')) return <LokiLogo className={className} />;
+  if (key.includes('victoriametrics') || key.includes('victoria')) return <VictoriaMetricsLogo className={className} />;
+  if (key.includes('zabbix')) return <ZabbixLogo className={className} />;
+  if (key.includes('uptime') || key.includes('kuma')) return <UptimeKumaLogo className={className} />;
+  if (key.includes('prometheus')) return <PrometheusLogo className={className} />;
+  if (key.includes('grafana')) return <GrafanaLogo className={className} />;
+
+  // CI / CD Engines (Gitea checked prior to generic actions keyword)
+  if (key.includes('gitea')) return <GiteaLogo className={className} />;
   if (key.includes('gitlab')) return <GitLabLogo className={className} />;
   if (key.includes('woodpecker')) return <WoodpeckerLogo className={className} />;
   if (key.includes('drone')) return <DroneLogo className={className} />;
-  if (key.includes('act') || key.includes('github-actions') || key.includes('actions')) return <ActLogo className={className} />;
-  if (key.includes('gitea')) return <GiteaLogo className={className} />;
   if (key.includes('jenkins')) return <JenkinsLogo className={className} />;
+  if (key.includes('act') || key.includes('github-actions') || key.includes('actions')) return <ActLogo className={className} />;
+
+  // Security, SAST, SCA & Container Scanners
   if (key.includes('sonarqube') || key.includes('sonar')) return <SonarQubeLogo className={className} />;
   if (key.includes('owasp') || key.includes('dependency-check')) return <OwaspLogo className={className} />;
   if (key.includes('trivy')) return <TrivyLogo className={className} />;
   if (key.includes('snyk')) return <SnykLogo className={className} />;
   if (key.includes('semgrep')) return <SemgrepLogo className={className} />;
+  if (key.includes('gitleaks')) return <GitleaksLogo className={className} />;
   if (key.includes('grype')) return <GrypeLogo className={className} />;
-  if (key.includes('docker') || key.includes('buildkit')) return <DockerLogo className={className} />;
+
+  // Container Engines & Registries
+  if (key.includes('harbor')) return <HarborLogo className={className} />;
   if (key.includes('podman')) return <PodmanLogo className={className} />;
   if (key.includes('kaniko')) return <KanikoLogo className={className} />;
+  if (key.includes('docker') || key.includes('buildkit')) return <DockerLogo className={className} />;
+
+  // GitOps, Deployments & PaaS
   if (key.includes('argocd') || key.includes('argo')) return <ArgoCDLogo className={className} />;
+  if (key.includes('coolify')) return <CoolifyLogo className={className} />;
+  if (key.includes('portainer')) return <PortainerLogo className={className} />;
   if (key.includes('flux')) return <FluxCDLogo className={className} />;
   if (key.includes('openshift')) return <OpenShiftLogo className={className} />;
+  if (key.includes('k3s')) return <K3sLogo className={className} />;
   if (key.includes('kubernetes') || key.includes('k8s')) return <KubernetesLogo className={className} />;
-  if (key.includes('prometheus')) return <PrometheusLogo className={className} />;
-  if (key.includes('grafana')) return <GrafanaLogo className={className} />;
-  if (key.includes('victoriametrics') || key.includes('victoria')) return <VictoriaMetricsLogo className={className} />;
-  if (key.includes('zabbix')) return <ZabbixLogo className={className} />;
-  if (key.includes('loki')) return <LokiLogo className={className} />;
-  if (key.includes('alertmanager') || key.includes('alert')) return <AlertmanagerLogo className={className} />;
-  if (key.includes('gmail') || key.includes('mail')) return <GmailLogo className={className} />;
+
+  // Default fallback
   return <DeveloperLogo className={className} />;
 };

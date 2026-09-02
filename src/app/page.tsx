@@ -2169,6 +2169,7 @@ export default function WorkflowPage() {
       <DocumentationModal
         isOpen={isDocsModalOpen}
         onClose={() => setIsDocsModalOpen(false)}
+        theme={theme}
       />
 
       {/* Dynamic Open Source Tool Catalog Modal */}
@@ -2177,6 +2178,7 @@ export default function WorkflowPage() {
         onClose={() => setIsCatalogModalOpen(false)}
         onAddToolToPipeline={handleAddToolToPipeline}
         activePipelineToolIds={activePipelineToolIds}
+        theme={theme}
       />
 
       {/* Footer */}
