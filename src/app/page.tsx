@@ -63,6 +63,7 @@ import ArtifactInspectorModal from '@/components/ArtifactInspectorModal';
 import InfrastructureConfigModal, { auditTabConfig } from '@/components/InfrastructureConfigModal';
 import DocumentationModal from '@/components/DocumentationModal';
 import DynamicToolCatalogModal from '@/components/DynamicToolCatalogModal';
+import NodeQuickConfigDrawer from '@/components/NodeQuickConfigDrawer';
 import { AgentSquadChatTerminal } from '@/components/AgentSquadChatTerminal';
 import { DevOpsToolDefinition, OPEN_SOURCE_DEVOPS_CATALOG } from '@/lib/devopsCatalog';
 import ProjectDropdown from '@/components/ProjectDropdown';
@@ -182,6 +183,8 @@ export default function WorkflowPage() {
   const [isDocsModalOpen, setIsDocsModalOpen] = useState<boolean>(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const [isNodeConfigDrawerOpen, setIsNodeConfigDrawerOpen] = useState<boolean>(false);
+  const [activeConfigNodeId, setActiveConfigNodeId] = useState<string | null>(null);
   const [activePipelineToolIds, setActivePipelineToolIds] = useState<string[]>([]);
 
   // Drag and drop states for Board & Nodes
@@ -907,6 +910,12 @@ export default function WorkflowPage() {
     } finally {
       setIsExecutingNodeAction(false);
     }
+  };
+
+  const handleOpenNodeConfig = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    setActiveConfigNodeId(nodeId);
+    setIsNodeConfigDrawerOpen(true);
   };
 
   const handleRemoveDynamicNode = (nodeId: string) => {
@@ -2114,6 +2123,20 @@ export default function WorkflowPage() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenNodeConfig(selectedNode.id)}
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs ${
+                        isLight 
+                          ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' 
+                          : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/20'
+                      }`}
+                      title="Mở bảng cấu hình 100% kết nối bên thứ 3 và Live Ping"
+                    >
+                      <Settings2 className="w-3.5 h-3.5" />
+                      <span>Cấu Hình 100% & Live Ping</span>
+                    </button>
+
                     {selectedNode.actionLabel && (
                       <button
                         type="button"
@@ -2413,6 +2436,19 @@ export default function WorkflowPage() {
         onOpenConfig={() => setIsConfigModalOpen(true)}
         onOpenDocs={() => setIsDocsModalOpen(true)}
         onOpenChat={() => setIsChatOpen(true)}
+      />
+
+      {/* Node Quick-Config & Live Ping Drawer */}
+      <NodeQuickConfigDrawer
+        isOpen={isNodeConfigDrawerOpen}
+        onClose={() => setIsNodeConfigDrawerOpen(false)}
+        nodeId={activeConfigNodeId || selectedNodeId}
+        nodeName={selectedNode?.name || ''}
+        nodeCategory={selectedNode?.details.gateName || selectedNode?.category || ''}
+        onSaveConfig={(nId, values) => {
+          console.log('Saved config for node', nId, values);
+        }}
+        theme={theme}
       />
 
     </div>
