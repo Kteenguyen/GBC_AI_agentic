@@ -1022,165 +1022,172 @@ export default function WorkflowPage() {
     }`}>
       
       {/* 1. TOP BAR CONTROLS & MAIN TAB SWITCHER */}
-      <div className={`w-full px-4 py-3 sticky top-0 z-50 space-y-2.5 border-b transition-colors ${
+      <div className={`w-full px-3 py-2 sticky top-0 z-50 border-b transition-colors ${
         isLight ? 'bg-[#EFECE6] border-[#E2DDD5]' : 'bg-[#0B0F19] border-[#1E293B]'
       }`}>
         
-        {/* Row 1: Action Buttons, Navigation Pills & Theme Switcher */}
-        <div className="max-w-[1550px] mx-auto flex flex-wrap items-center justify-between gap-3">
+        {/* Row 1: ALL CONTROLS IN 1 SINGLE ROW ON DESKTOP */}
+        <div className="max-w-[1750px] mx-auto flex items-center justify-between gap-2 overflow-x-auto lg:overflow-x-visible flex-nowrap">
           
-          {/* Main 4 Navigation Tabs */}
-          <div className={`flex items-center gap-1.5 p-1 rounded-xl border transition ${
+          {/* Group 1: 5 Main Navigation Tabs */}
+          <div className={`flex items-center gap-1 p-0.5 rounded-lg border shrink-0 transition ${
             isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-[#090D18] border-slate-800'
           }`}>
             <button
               type="button"
               onClick={() => setActiveMainTab('WORKFLOW')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'WORKFLOW'
-                  ? (isLight ? 'bg-blue-600 text-white shadow-md' : 'bg-blue-600 text-white shadow-md shadow-blue-600/30')
+                  ? (isLight ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm shadow-blue-600/30')
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
               }`}
+              style={{ height: '30px' }}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Sơ Đồ Visual Workflow</span>
+              <span>Sơ Đồ Visual</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('AGENTS')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'AGENTS'
-                  ? (isLight ? 'bg-blue-700 text-white shadow-md' : 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30')
+                  ? (isLight ? 'bg-blue-700 text-white shadow-sm' : 'bg-cyan-600 text-white shadow-sm shadow-cyan-600/30')
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
               }`}
+              style={{ height: '30px' }}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>13 AI Subagents Tự Hành</span>
+              <span>13 Subagents</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping ml-0.5" />
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('QA_LAB')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'QA_LAB'
-                  ? 'bg-purple-600 text-white shadow-md'
+                  ? 'bg-purple-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
               }`}
+              style={{ height: '30px' }}
             >
               <FlaskConical className="w-3.5 h-3.5" />
-              <span>Phòng Thí Nghiệm QA</span>
+              <span>QA Lab</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('SOLO_ARENA')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'SOLO_ARENA'
-                  ? 'bg-amber-600 text-white shadow-md'
+                  ? 'bg-amber-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
               }`}
+              style={{ height: '30px' }}
             >
               <Swords className="w-3.5 h-3.5" />
-              <span>Đấu Trường Solo 1v1</span>
+              <span>Solo 1v1</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveMainTab('KEY_POOL')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11.5px] font-bold transition-all whitespace-nowrap ${
                 activeMainTab === 'KEY_POOL'
-                  ? 'bg-emerald-600 text-white shadow-md'
+                  ? 'bg-emerald-600 text-white shadow-sm'
                   : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
               }`}
+              style={{ height: '30px' }}
             >
               <Key className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Cấu Hình Key Pool & 9Router</span>
+              <span>Key Pool & 9Router</span>
             </button>
           </div>
 
-          {/* Action Buttons: Push code, Tiếp tục, Đặt lại */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Group 2: Action Buttons (Push code, Tiếp tục, Đặt lại) */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handlePushCodeRunAll}
               disabled={isRunningAll}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-all shadow-md ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11.5px] font-bold text-white transition-all shadow-sm whitespace-nowrap ${
                 isRunningAll
                   ? 'bg-blue-600 animate-pulse cursor-wait'
                   : 'bg-[#10B981] hover:bg-[#059669] shadow-emerald-500/20'
               }`}
-              style={{ height: '34px', whiteSpace: 'nowrap' }}
+              style={{ height: '30px' }}
             >
-              <Play className="w-3.5 h-3.5 fill-white" />
-              <span>► Push code (chạy hết)</span>
+              <Play className="w-3 h-3 fill-white" />
+              <span>Push code (chạy hết)</span>
             </button>
 
             <button
               type="button"
               onClick={handleStepForward}
               disabled={isRunningAll}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition-all border whitespace-nowrap ${
                 isLight 
                   ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
                   : 'bg-[#1E293B] hover:bg-slate-700 text-slate-200 border-slate-700'
               }`}
-              style={{ height: '34px', whiteSpace: 'nowrap' }}
+              style={{ height: '30px' }}
             >
-              <SkipForward className="w-3.5 h-3.5" />
+              <SkipForward className="w-3 h-3" />
               <span>Tiếp tục</span>
             </button>
 
             <button
               type="button"
               onClick={handleReset}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition-all border whitespace-nowrap ${
                 isLight 
                   ? 'bg-[#FAF8F5] hover:bg-slate-200 text-slate-600 border-[#E2DDD5]'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-slate-400 hover:text-white border-slate-800'
               }`}
-              style={{ height: '34px', whiteSpace: 'nowrap' }}
+              style={{ height: '30px' }}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3 h-3" />
               <span>Đặt lại</span>
             </button>
           </div>
 
-          {/* Top Bar Config Modals Triggers & THEME SWITCHER */}
-          <div className="flex items-center gap-2 flex-wrap text-xs">
+          {/* Group 3: Utility Controls & Modals */}
+          <div className="flex items-center gap-1.5 shrink-0 text-xs">
             {/* AI Prompt Copilot Terminal Button */}
             <button
               type="button"
               onClick={() => setIsChatOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm shadow-blue-500/20 transition cursor-pointer active:scale-95"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm transition cursor-pointer active:scale-95 whitespace-nowrap"
+              style={{ height: '30px' }}
               title="Mở AI Prompt Terminal (Ctrl + K)"
             >
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-              <span>Prompt AI (Flash 3.7)</span>
-              <span className="hidden sm:inline text-[9.5px] font-mono bg-white/20 px-1 py-0.2 rounded">Ctrl+K</span>
+              <Sparkles className="w-3 h-3 animate-pulse" />
+              <span>Prompt AI</span>
+              <span className="hidden xl:inline text-[9px] font-mono bg-white/20 px-1 rounded">Ctrl+K</span>
             </button>
 
             {/* THEME TOGGLE (LIGHT BEIGE VS DARK) */}
             <button
               type="button"
               onClick={() => setTheme(curr => curr === 'light' ? 'dark' : 'light')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border shadow-sm cursor-pointer ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11.5px] font-bold transition-all border shadow-xs cursor-pointer whitespace-nowrap ${
                 isLight
                   ? 'bg-[#FFFFFF] hover:bg-[#FAF8F5] text-amber-800 border-[#E2DDD5]'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-amber-300 border-slate-700'
               }`}
-              title="Chuyển đổi giao diện Sáng (Nền Be) / Tối"
+              style={{ height: '30px' }}
+              title="Chuyển đổi giao diện Sáng / Tối"
             >
               {isLight ? (
                 <>
-                  <Sun className="w-3.5 h-3.5 text-amber-600 fill-amber-500/30" />
-                  <span>Nền Be (Sáng)</span>
+                  <Sun className="w-3 h-3 text-amber-600 fill-amber-500/30" />
+                  <span>Sáng</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>Nền Tối</span>
+                  <Moon className="w-3 h-3 text-cyan-300" />
+                  <span>Tối</span>
                 </>
               )}
             </button>
@@ -1189,24 +1196,26 @@ export default function WorkflowPage() {
             <button
               type="button"
               onClick={() => setIsCatalogModalOpen(true)}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-blue-500/40 shadow-sm transition cursor-pointer"
+              className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded-lg text-[11.5px] font-bold border border-blue-500/40 shadow-xs transition cursor-pointer whitespace-nowrap"
+              style={{ height: '30px' }}
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Kho Nền Tảng Open Source</span>
+              <Plus className="w-3 h-3" />
+              <span>Kho Open Source</span>
             </button>
 
             {/* Documentation Guides */}
             <button
               type="button"
               onClick={() => setIsDocsModalOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
                 isLight 
                   ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700'
               }`}
+              style={{ height: '30px' }}
             >
-              <BookOpen className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>Hướng Dẫn Cấu Hình</span>
+              <BookOpen className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
+              <span>Hướng Dẫn</span>
             </button>
 
             {/* Infrastructure Config Gear Button */}
@@ -1215,13 +1224,13 @@ export default function WorkflowPage() {
               onClick={() => setIsConfigModalOpen(true)}
               title="Cấu Hình Hạ Tầng & API Tokens"
               aria-label="Cấu Hình Hạ Tầng"
-              className={`p-2 rounded-lg transition cursor-pointer border shadow-xs flex items-center justify-center group ${
+              className={`w-[30px] h-[30px] rounded-lg transition cursor-pointer border shadow-xs flex items-center justify-center group shrink-0 ${
                 isLight 
                   ? 'bg-white hover:bg-slate-100 text-slate-700 border-[#E2DDD5] hover:border-blue-400 hover:text-blue-600'
                   : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700 hover:border-cyan-400 hover:text-cyan-400'
               }`}
             >
-              <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:rotate-90 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-transform duration-300" />
+              <Settings className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:rotate-90 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-transform duration-300" />
             </button>
           </div>
         </div>
