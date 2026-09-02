@@ -50,8 +50,10 @@ import {
   MyAppLogo,
   PrometheusLogo,
   GrafanaLogo,
-  GmailLogo
+  GmailLogo,
+  OfficialToolIcon
 } from '@/components/BrandLogos';
+import { WorkflowActorSidebar } from '@/components/WorkflowActorSidebar';
 
 import ArtifactInspectorModal from '@/components/ArtifactInspectorModal';
 import InfrastructureConfigModal, { auditTabConfig } from '@/components/InfrastructureConfigModal';
@@ -234,6 +236,7 @@ export default function WorkflowPage() {
   const [soloBattleRepo, setSoloBattleRepo] = useState<GitHubTrendingRepo | null>(null);
   const [soloBattleAgent, setSoloBattleAgent] = useState<AgentRoleProfile | null>(null);
   const [isSoloModalOpen, setIsSoloModalOpen] = useState<boolean>(false);
+  const [isActorSidebarOpen, setIsActorSidebarOpen] = useState<boolean>(true);
 
   // Modal Artifact State
   const [modalArtifact, setModalArtifact] = useState<{
@@ -1002,9 +1005,9 @@ export default function WorkflowPage() {
     };
   }, []);
 
-  const renderOfficialLogo = (logoType: WorkflowNode['logoType'], className = "w-9 h-9") => {
+  const renderOfficialLogo = (logoType: WorkflowNode['logoType'], className = "w-9 h-9", nodeName?: string) => {
     switch (logoType) {
-      case 'DEV': return <DeveloperLogo className={className} />;
+      case 'DEV': return nodeName && nodeName !== 'Developer' ? <OfficialToolIcon toolIdOrName={nodeName} className={className} /> : <DeveloperLogo className={className} />;
       case 'GITHUB': return <GitHubLogo className={className} />;
       case 'JENKINS': return <JenkinsLogo className={className} />;
       case 'OWASP': return <OwaspLogo className={className} />;
@@ -1017,7 +1020,7 @@ export default function WorkflowPage() {
       case 'PROMETHEUS': return <PrometheusLogo className={className} />;
       case 'GRAFANA': return <GrafanaLogo className={className} />;
       case 'GMAIL': return <GmailLogo className={className} />;
-      default: return <DeveloperLogo className={className} />;
+      default: return <OfficialToolIcon toolIdOrName={nodeName || logoType} className={className} />;
     }
   };
 
@@ -1311,56 +1314,6 @@ export default function WorkflowPage() {
         {activeMainTab === 'WORKFLOW' && (
           <div className="space-y-6">
             
-            {/* Interactive Drag & Drop Tool Palette */}
-            <div className={`w-full rounded-2xl p-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border transition ${
-              isLight
-                ? 'bg-white border-[#E2DDD5]'
-                : 'bg-[#0A0E1A] border-blue-500/30'
-            }`}>
-              <div className="flex items-center gap-2 text-xs font-bold">
-                <div className={`p-1 rounded-lg ${isLight ? 'bg-blue-50 text-blue-600' : 'bg-blue-500/10 text-blue-400'}`}>
-                  <Move className="w-4 h-4" />
-                </div>
-                <span className={isLight ? 'text-slate-900' : 'text-slate-200'}>Kho Kéo Thả Công Cụ Nhanh:</span>
-                <span className={`text-[10.5px] font-normal hidden sm:inline ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                  (Giữ chuột kéo thả công cụ vào Box 1 hoặc Box 2 bên dưới)
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-                {OPEN_SOURCE_DEVOPS_CATALOG.slice(0, 10).map((t) => (
-                  <div
-                    key={t.id}
-                    draggable={true}
-                    onDragStart={(e) => {
-                      const payload = JSON.stringify(t);
-                      e.dataTransfer.setData('text/plain', payload);
-                      e.dataTransfer.setData('application/json', payload);
-                      if (typeof window !== 'undefined') {
-                        (window as any).__draggedDevOpsTool = t;
-                      }
-                    }}
-                    onDragEnd={() => {
-                      if (typeof window !== 'undefined') {
-                        (window as any).__draggedDevOpsTool = null;
-                      }
-                    }}
-                    onClick={() => handleAddToolToPipeline(t, {})}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-mono font-bold border cursor-grab active:cursor-grabbing transition shadow-xs shrink-0 select-none ${
-                      isLight
-                        ? 'bg-[#FAF8F5] hover:bg-blue-600 hover:text-white border-[#E2DDD5] text-slate-700 hover:border-blue-600'
-                        : 'bg-[#0F172A] hover:bg-blue-600 hover:text-white border-slate-700/80 hover:border-blue-400 text-slate-200'
-                    }`}
-                    title="Kéo thả vào Box 1 / Box 2 hoặc bấm để tích hợp ngay"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-                    <span>{t.name}</span>
-                    <span className="text-[9px] uppercase font-sans opacity-70">+{t.category}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Mobile Touch-First Step-by-Step Timeline (Visible on < 768px screens) */}
             <MobileWorkflowTimeline
               nodes={nodes}
@@ -1370,13 +1323,25 @@ export default function WorkflowPage() {
               theme={theme}
             />
 
-            {/* Desktop Visual Canvas Board with Drop Targets (Visible on >= 768px screens) */}
-            <div className={`hidden md:block w-full rounded-3xl p-6 sm:p-10 shadow-xl overflow-x-auto relative border transition ${
-              isLight
-                ? 'bg-white border-[#E2DDD5]'
-                : 'bg-[#090E1A] border-[#1E293B]'
-            }`}>
-              <div className="min-w-[1150px] space-y-8">
+            {/* Main Visual Canvas & Left Collapsible Actor Toolbox Container */}
+            <div className="flex flex-col lg:flex-row gap-5 items-start w-full">
+              {/* Left Collapsible Actor Toolbox */}
+              <WorkflowActorSidebar
+                isOpen={isActorSidebarOpen}
+                onToggle={() => setIsActorSidebarOpen(prev => !prev)}
+                onAddTool={(tool, targetBox) => handleAddToolToPipeline(tool, {}, targetBox)}
+                theme={theme}
+              />
+
+              {/* Desktop Visual Canvas & Inspector Column */}
+              <div className="flex-1 w-full min-w-0 space-y-6">
+                {/* Desktop Visual Canvas Board with Drop Targets (Visible on >= 768px screens) */}
+                <div className={`hidden md:block w-full rounded-3xl p-6 sm:p-8 shadow-xl overflow-x-auto relative border transition ${
+                  isLight
+                    ? 'bg-white border-[#E2DDD5]'
+                    : 'bg-[#090E1A] border-[#1E293B]'
+                }`}>
+                  <div className="min-w-[1150px] space-y-8">
                 
                 {/* EXTERNAL LEFT: Developer & GitHub Source */}
                 <div className="flex items-center gap-6">
@@ -1661,8 +1626,8 @@ export default function WorkflowPage() {
                             }`}
                             style={{ minWidth: '180px' }}
                           >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${isLight ? 'bg-blue-100 text-blue-800' : 'bg-cyan-900/60 text-cyan-300'}`}>
-                              {dynNode.name.substring(0, 2).toUpperCase()}
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-slate-800 border-slate-700'}`}>
+                              <OfficialToolIcon toolIdOrName={dynNode.name} className="w-6 h-6" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className={`font-bold text-xs truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{dynNode.name}</div>
@@ -1899,8 +1864,8 @@ export default function WorkflowPage() {
                             }`}
                             style={{ minWidth: '180px' }}
                           >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${isLight ? 'bg-purple-100 text-purple-800' : 'bg-purple-900/60 text-purple-300'}`}>
-                              {dynNode.name.substring(0, 2).toUpperCase()}
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-slate-800 border-slate-700'}`}>
+                              <OfficialToolIcon toolIdOrName={dynNode.name} className="w-6 h-6" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className={`font-bold text-xs truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{dynNode.name}</div>
@@ -1939,7 +1904,7 @@ export default function WorkflowPage() {
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs border ${
                       isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-slate-800/90 border-slate-700'
                     }`}>
-                      {renderOfficialLogo(selectedNode.logoType, 'w-8 h-8')}
+                      {renderOfficialLogo(selectedNode.logoType, 'w-8 h-8', selectedNode.name)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2.5">
@@ -2069,6 +2034,8 @@ export default function WorkflowPage() {
                 </div>
               </div>
             )}
+              </div>
+            </div>
           </div>
         )}
 

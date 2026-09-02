@@ -195,7 +195,6 @@ export const GrafanaLogo: React.FC<{ className?: string }> = ({ className = "w-8
 export const GmailLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="16" cy="16" r="15" fill="#FFFFFF" stroke="#EA4335" strokeWidth="1.5" />
-    {/* Gmail M Shapes */}
     <path d="M7 11V22C7 22.5 7.5 23 8 23H10V14.5L16 19L22 14.5V23H24C24.5 23 25 22.5 25 22V11C25 10.2 24.1 9.8 23.5 10.3L16 16L8.5 10.3C7.9 9.8 7 10.2 7 11Z" fill="#EA4335" />
     <path d="M7 11V22C7 22.5 7.5 23 8 23H10V14.5L7 12V11Z" fill="#4285F4" />
     <path d="M25 11V22C25 22.5 24.5 23 24 23H22V14.5L25 12V11Z" fill="#34A853" />
@@ -203,3 +202,207 @@ export const GmailLogo: React.FC<{ className?: string }> = ({ className = "w-8 h
     <path d="M25 11C25 10.2 24.1 9.8 23.5 10.3L22 11.5L25 13.8V11Z" fill="#FBBC05" />
   </svg>
 );
+
+// 14. Official GitLab CI/CD Logo (Geometric Tanuki Fox)
+export const GitLabLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#FFF5EE" stroke="#FC6D26" strokeWidth="1.5" />
+    <path d="M16 25.5L20.8 10.8H11.2L16 25.5Z" fill="#E24329" />
+    <path d="M16 25.5L11.2 10.8H6L16 25.5Z" fill="#FC6D26" />
+    <path d="M6 10.8L4.2 16.3C4 16.9 4.2 17.5 4.7 17.9L16 25.5L6 10.8Z" fill="#FCA326" />
+    <path d="M6 10.8H11.2L8.6 2.8C8.3 2 7.2 2 6.9 2.8L6 10.8Z" fill="#E24329" />
+    <path d="M16 25.5L20.8 10.8H26L16 25.5Z" fill="#FC6D26" />
+    <path d="M26 10.8L27.8 16.3C28 16.9 27.8 17.5 27.3 17.9L16 25.5L26 10.8Z" fill="#FCA326" />
+    <path d="M26 10.8H20.8L23.4 2.8C23.7 2 24.8 2 25.1 2.8L26 10.8Z" fill="#E24329" />
+  </svg>
+);
+
+// 15. Official Woodpecker CI Logo (Geometric Bird Crest)
+export const WoodpeckerLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0A1826" stroke="#23C4F8" strokeWidth="1.5" />
+    <path d="M8 23L16 7L24 23H8Z" fill="none" stroke="#23C4F8" strokeWidth="1.8" />
+    <path d="M16 7L21 17H11L16 7Z" fill="#23C4F8" />
+    <circle cx="16" cy="14" r="1.5" fill="#0A1826" />
+    <path d="M16 17L21 23H11L16 17Z" fill="#00E5FF" />
+  </svg>
+);
+
+// 16. Official Drone CI by Harness Logo (Quadcopter Drone)
+export const DroneLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0B132B" stroke="#2496ED" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="4.5" fill="#2496ED" />
+    <circle cx="16" cy="16" r="2" fill="#FFFFFF" />
+    <line x1="12" y1="12" x2="8" y2="8" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
+    <line x1="20" y1="12" x2="24" y2="8" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
+    <line x1="12" y1="20" x2="8" y2="24" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
+    <line x1="20" y1="20" x2="24" y2="24" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="8" cy="8" r="2.5" fill="#2496ED" stroke="#00E5FF" strokeWidth="1" />
+    <circle cx="24" cy="8" r="2.5" fill="#2496ED" stroke="#00E5FF" strokeWidth="1" />
+    <circle cx="8" cy="24" r="2.5" fill="#2496ED" stroke="#00E5FF" strokeWidth="1" />
+    <circle cx="24" cy="24" r="2.5" fill="#2496ED" stroke="#00E5FF" strokeWidth="1" />
+  </svg>
+);
+
+// 17. Official Act / GitHub Actions Logo (Actions Rocket)
+export const ActLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#181F2E" stroke="#2088FF" strokeWidth="1.5" />
+    <path d="M12 9L21 16L12 23V9Z" fill="#2088FF" />
+    <circle cx="12" cy="9" r="2.5" fill="#79C0FF" />
+    <circle cx="12" cy="23" r="2.5" fill="#79C0FF" />
+    <circle cx="21" cy="16" r="3" fill="#58A6FF" />
+  </svg>
+);
+
+// 18. Official Gitea Logo (Teapot Tea Cup)
+export const GiteaLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#F0FDF4" stroke="#609926" strokeWidth="1.5" />
+    <path d="M10 13C10 11.5 12.5 10 16 10C19.5 10 22 11.5 22 13V20C22 23.5 19.5 25 16 25C12.5 25 10 23.5 10 20V13Z" fill="#609926" />
+    <path d="M22 14H24.5C25.5 14 26 15 26 16C26 17 25.5 18 24.5 18H22" stroke="#609926" strokeWidth="1.8" strokeLinecap="round" />
+    <circle cx="13.5" cy="15" r="1" fill="#FFFFFF" />
+    <circle cx="18.5" cy="15" r="1" fill="#FFFFFF" />
+  </svg>
+);
+
+// 19. Official Snyk Logo (Snyk Guard Dog)
+export const SnykLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#141E33" stroke="#4C54D2" strokeWidth="1.5" />
+    <path d="M9 10L14 7L16 11L18 7L23 10L22 17L16 24L10 17L9 10Z" fill="#4C54D2" />
+    <circle cx="13" cy="14" r="1.2" fill="#FFFFFF" />
+    <circle cx="19" cy="14" r="1.2" fill="#FFFFFF" />
+  </svg>
+);
+
+// 20. Official Semgrep Logo (Magnifying Paw Search)
+export const SemgrepLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0F172A" stroke="#2B7FFF" strokeWidth="1.5" />
+    <circle cx="14.5" cy="14.5" r="5.5" stroke="#2B7FFF" strokeWidth="2.2" fill="none" />
+    <line x1="18.5" y1="18.5" x2="24" y2="24" stroke="#00E5FF" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="14.5" cy="14.5" r="2" fill="#38BDF8" />
+  </svg>
+);
+
+// 21. Official Grype Logo (Anchore Grype Shield)
+export const GrypeLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0A1628" stroke="#00D084" strokeWidth="1.5" />
+    <path d="M16 6L23 10V16C23 21 19.5 24.5 16 26C12.5 24.5 9 21 9 16V10L16 6Z" fill="#00D084" fillOpacity="0.2" stroke="#00D084" strokeWidth="1.8" />
+    <circle cx="16" cy="14" r="3" stroke="#00D084" strokeWidth="1.5" />
+    <path d="M16 17V21M13 21H19" stroke="#00D084" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+// 22. Official Podman Logo (Purple Container Pod)
+export const PodmanLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#241B35" stroke="#892CA0" strokeWidth="1.5" />
+    <rect x="9" y="10" width="14" height="12" rx="3" fill="#892CA0" />
+    <circle cx="13" cy="14" r="1.5" fill="#FFFFFF" />
+    <circle cx="19" cy="14" r="1.5" fill="#FFFFFF" />
+    <circle cx="13" cy="18" r="1" fill="#C084FC" />
+    <circle cx="19" cy="18" r="1" fill="#C084FC" />
+  </svg>
+);
+
+// 23. Official Kaniko Logo (Google Kaniko Cube)
+export const KanikoLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0F172A" stroke="#4285F4" strokeWidth="1.5" />
+    <path d="M16 7L24 11.5V20.5L16 25L8 20.5V11.5L16 7Z" fill="none" stroke="#4285F4" strokeWidth="1.8" />
+    <path d="M16 7V25M8 11.5L16 16L24 11.5" stroke="#34A853" strokeWidth="1.5" />
+  </svg>
+);
+
+// 24. Official Flux CD Logo (CNCF Infinity Cycle)
+export const FluxCDLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0B132B" stroke="#00D2D3" strokeWidth="1.5" />
+    <path d="M12 16C12 13.5 13.5 12 16 12C18.5 12 20 13.5 20 16C20 18.5 21.5 20 24 20C26.5 20 28 18.5 28 16" stroke="#00D2D3" strokeWidth="2.2" strokeLinecap="round" />
+    <path d="M20 16C20 18.5 18.5 20 16 20C13.5 20 12 18.5 12 16C12 13.5 10.5 12 8 12C5.5 12 4 13.5 4 16" stroke="#54A0FF" strokeWidth="2.2" strokeLinecap="round" />
+  </svg>
+);
+
+// 25. Official OpenShift Logo (Red Hat OpenShift Ring)
+export const OpenShiftLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#18191A" stroke="#EE0000" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="7" stroke="#EE0000" strokeWidth="2" strokeDasharray="3 3" fill="none" />
+    <circle cx="16" cy="9" r="2" fill="#EE0000" />
+    <circle cx="23" cy="16" r="2" fill="#EE0000" />
+    <circle cx="16" cy="23" r="2" fill="#EE0000" />
+    <circle cx="9" cy="16" r="2" fill="#EE0000" />
+  </svg>
+);
+
+// 26. Official VictoriaMetrics Logo (VM Lettermark Chart)
+export const VictoriaMetricsLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0A1128" stroke="#FF4D4D" strokeWidth="1.5" />
+    <path d="M8 10L13 22L16 15L19 22L24 10" stroke="#FF4D4D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// 27. Official Zabbix Logo (Zabbix Red Crest)
+export const ZabbixLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="#D40000" />
+    <path d="M10 10H22L11 22H23" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// 28. Official Loki Logo (Grafana Loki Viking Ship)
+export const LokiLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0B1A18" stroke="#F46800" strokeWidth="1.5" />
+    <path d="M7 18C10 22 22 22 25 18L23 15H9L7 18Z" fill="#F46800" />
+    <line x1="16" y1="9" x2="16" y2="15" stroke="#FBBF24" strokeWidth="2" />
+    <path d="M16 10L21 12.5L16 15V10Z" fill="#FBBF24" />
+  </svg>
+);
+
+// 29. Official Alertmanager Logo (Prometheus Megaphone Alert)
+export const AlertmanagerLogo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#1C1917" stroke="#EF4444" strokeWidth="1.5" />
+    <path d="M10 13H13L18 9V23L13 19H10V13Z" fill="#EF4444" />
+    <path d="M21 12C22.5 13.5 22.5 18.5 21 20" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+    <path d="M23.5 10C26 13 26 19 23.5 22" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+// Universal Official Tool Logo Dispatcher
+export const OfficialToolIcon: React.FC<{ toolIdOrName: string; className?: string }> = ({ toolIdOrName, className = "w-7 h-7" }) => {
+  const key = toolIdOrName.toLowerCase();
+  if (key.includes('gitlab')) return <GitLabLogo className={className} />;
+  if (key.includes('woodpecker')) return <WoodpeckerLogo className={className} />;
+  if (key.includes('drone')) return <DroneLogo className={className} />;
+  if (key.includes('act') || key.includes('github-actions') || key.includes('actions')) return <ActLogo className={className} />;
+  if (key.includes('gitea')) return <GiteaLogo className={className} />;
+  if (key.includes('jenkins')) return <JenkinsLogo className={className} />;
+  if (key.includes('sonarqube') || key.includes('sonar')) return <SonarQubeLogo className={className} />;
+  if (key.includes('owasp') || key.includes('dependency-check')) return <OwaspLogo className={className} />;
+  if (key.includes('trivy')) return <TrivyLogo className={className} />;
+  if (key.includes('snyk')) return <SnykLogo className={className} />;
+  if (key.includes('semgrep')) return <SemgrepLogo className={className} />;
+  if (key.includes('grype')) return <GrypeLogo className={className} />;
+  if (key.includes('docker') || key.includes('buildkit')) return <DockerLogo className={className} />;
+  if (key.includes('podman')) return <PodmanLogo className={className} />;
+  if (key.includes('kaniko')) return <KanikoLogo className={className} />;
+  if (key.includes('argocd') || key.includes('argo')) return <ArgoCDLogo className={className} />;
+  if (key.includes('flux')) return <FluxCDLogo className={className} />;
+  if (key.includes('openshift')) return <OpenShiftLogo className={className} />;
+  if (key.includes('kubernetes') || key.includes('k8s')) return <KubernetesLogo className={className} />;
+  if (key.includes('prometheus')) return <PrometheusLogo className={className} />;
+  if (key.includes('grafana')) return <GrafanaLogo className={className} />;
+  if (key.includes('victoriametrics') || key.includes('victoria')) return <VictoriaMetricsLogo className={className} />;
+  if (key.includes('zabbix')) return <ZabbixLogo className={className} />;
+  if (key.includes('loki')) return <LokiLogo className={className} />;
+  if (key.includes('alertmanager') || key.includes('alert')) return <AlertmanagerLogo className={className} />;
+  if (key.includes('gmail') || key.includes('mail')) return <GmailLogo className={className} />;
+  return <DeveloperLogo className={className} />;
+};
