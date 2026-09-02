@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { 
   BookOpen, 
@@ -22,9 +22,21 @@ import {
   Sun,
   Moon,
   Sparkles,
-  X
+  X,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  ArrowRight,
+  HelpCircle,
+  Bot
 } from "lucide-react";
-import { TechnicalDoc } from "@/lib/docsData";
+import { 
+  TechnicalDoc, 
+  DOC_ACCORDION_GROUPS, 
+  BUNDLED_TECHNICAL_DOCS,
+  DocAccordionGroup 
+} from "@/lib/docsData";
+import { MarkdownDocViewer } from "@/components/MarkdownDocViewer";
 
 interface ProjectItem {
   id: string;
@@ -64,16 +76,35 @@ export default function DocsHubPage() {
   const isLight = theme === 'light';
 
   const [selectedProjectId, setSelectedProjectId] = useState<string>("workflow");
-  const [docs, setDocs] = useState<TechnicalDoc[]>([]);
-  const [categories, setCategories] = useState<Array<{ key: string; label: string; count?: number }>>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [docs, setDocs] = useState<TechnicalDoc[]>(BUNDLED_TECHNICAL_DOCS);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedDoc, setSelectedDoc] = useState<TechnicalDoc | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedDocId, setSelectedDocId] = useState<string>(
+    BUNDLED_TECHNICAL_DOCS[0]?.id || "00-project-blueprint-and-workflow-architecture"
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
-  // New Doc Form State
+  // Accordion open/close state: All open by default
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    OVERVIEW: true,
+    AI_SQUAD: true,
+    GIT_CI: true,
+    DEVSECOPS: true,
+    DOCKER_K8S: true,
+    MONITORING: true,
+    FAQ_TROUBLESHOOTING: true,
+  });
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Form State for Adding New Doc
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState("Kiến Trúc & Đội Ngũ");
   const [newCategoryKey, setNewCategoryKey] = useState("architecture");
@@ -82,20 +113,20 @@ export default function DocsHubPage() {
   const [newTags, setNewTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fetch docs from API if available
   const fetchDocs = async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/docs?projectId=${selectedProjectId}`);
       const data = await res.json();
-      if (data.success && data.docs) {
+      if (data.success && data.docs && data.docs.length > 0) {
         setDocs(data.docs);
-        if (data.categories) setCategories(data.categories);
-        if (!selectedDoc && data.docs.length > 0) {
-          setSelectedDoc(data.docs[0]);
+        if (!data.docs.find((d: TechnicalDoc) => d.id === selectedDocId)) {
+          setSelectedDocId(data.docs[0].id);
         }
       }
     } catch (err) {
-      console.error("Lỗi tải danh mục tài liệu:", err);
+      console.warn("Dùng tài liệu tĩnh có sẵn:", err);
     } finally {
       setIsLoading(false);
     }
@@ -105,15 +136,68 @@ export default function DocsHubPage() {
     fetchDocs();
   }, [selectedProjectId]);
 
-  const filteredDocs = docs.filter(doc => {
-    const matchesCategory = selectedCategory === "all" || doc.categoryKey === selectedCategory;
-    const matchesSearch = !searchQuery || 
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.tags?.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
-  });
+  // Selected Doc Object
+  const selectedDoc = useMemo(() => {
+    return docs.find(d => d.id === selectedDocId) || docs[0] || null;
+  }, [docs, selectedDocId]);
+
+  // Grouped Docs Map for NestJS Sidebar
+  const docsByGroup = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const result: Record<string, TechnicalDoc[]> = {};
+
+    DOC_ACCORDION_GROUPS.forEach(group => {
+      const matched = docs.filter(doc => {
+        const belongsToGroup = group.docIds.includes(doc.id) || 
+          (group.key === 'DEVSECOPS' && doc.categoryKey === 'security') ||
+          (group.key === 'GIT_CI' && (doc.categoryKey === 'git' || doc.categoryKey === 'ci')) ||
+          (group.key === 'DOCKER_K8S' && (doc.categoryKey === 'docker' || doc.categoryKey === 'k8s')) ||
+          (group.key === 'MONITORING' && doc.categoryKey === 'monitoring') ||
+          (group.key === 'OVERVIEW' && doc.categoryKey === 'architecture');
+
+        if (!belongsToGroup) return false;
+
+        if (!query) return true;
+        return (
+          doc.title.toLowerCase().includes(query) ||
+          doc.summary.toLowerCase().includes(query) ||
+          doc.content.toLowerCase().includes(query) ||
+          doc.tags?.some(t => t.toLowerCase().includes(query))
+        );
+      });
+
+      result[group.key] = matched;
+    });
+
+    return result;
+  }, [docs, searchQuery]);
+
+  // Extract Heading 2 anchors from current doc for Quick Jump Pills
+  const onPageHeadings = useMemo(() => {
+    if (!selectedDoc) return [];
+    const lines = selectedDoc.content.split("\n");
+    const headings: Array<{ id: string; title: string }> = [];
+
+    lines.forEach(line => {
+      if (line.startsWith("## ")) {
+        const title = line.replace(/^## /, "").trim();
+        const id = title.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 50);
+        headings.push({ id, title });
+      }
+    });
+
+    return headings;
+  }, [selectedDoc]);
+
+  // Previous and Next Doc for Pagination Footer
+  const { prevDoc, nextDoc } = useMemo(() => {
+    if (!selectedDoc) return { prevDoc: null, nextDoc: null };
+    const currentIndex = docs.findIndex(d => d.id === selectedDoc.id);
+    return {
+      prevDoc: currentIndex > 0 ? docs[currentIndex - 1] : null,
+      nextDoc: currentIndex < docs.length - 1 ? docs[currentIndex + 1] : null
+    };
+  }, [docs, selectedDoc]);
 
   const handleCopyContent = () => {
     if (!selectedDoc) return;
@@ -170,7 +254,7 @@ export default function DocsHubPage() {
         setNewContent("");
         setNewTags("");
         await fetchDocs();
-        setSelectedDoc(data.doc);
+        setSelectedDocId(data.doc.id);
       }
     } catch (err) {
       console.error("Lỗi tạo tài liệu mới:", err);
@@ -179,16 +263,23 @@ export default function DocsHubPage() {
     }
   };
 
-  const getCategoryIcon = (key: string) => {
+  const getGroupIcon = (key: string) => {
     switch (key) {
-      case "architecture": return <Layers className={`w-3.5 h-3.5 ${isLight ? 'text-purple-600' : 'text-purple-400'}`} />;
-      case "git": return <FolderGit2 className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-blue-400'}`} />;
-      case "ci": return <Activity className={`w-3.5 h-3.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />;
-      case "security": return <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-rose-600' : 'text-rose-400'}`} />;
-      case "docker": return <Container className={`w-3.5 h-3.5 ${isLight ? 'text-cyan-600' : 'text-cyan-400'}`} />;
-      case "kubernetes": return <Boxes className={`w-3.5 h-3.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />;
-      case "monitoring": return <Activity className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />;
+      case "OVERVIEW": return <BookOpen className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-cyan-400'}`} />;
+      case "AI_SQUAD": return <Bot className={`w-3.5 h-3.5 ${isLight ? 'text-purple-600' : 'text-purple-400'}`} />;
+      case "GIT_CI": return <FolderGit2 className={`w-3.5 h-3.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />;
+      case "DEVSECOPS": return <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-rose-600' : 'text-rose-400'}`} />;
+      case "DOCKER_K8S": return <Container className={`w-3.5 h-3.5 ${isLight ? 'text-cyan-600' : 'text-cyan-400'}`} />;
+      case "MONITORING": return <Activity className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />;
+      case "FAQ_TROUBLESHOOTING": return <HelpCircle className={`w-3.5 h-3.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />;
       default: return <FileText className={`w-3.5 h-3.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`} />;
+    }
+  };
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -196,11 +287,23 @@ export default function DocsHubPage() {
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
       isLight ? 'bg-[#F7F5F0] text-slate-900' : 'bg-[#07090E] text-slate-100'
     }`}>
-      {/* Top Navigation Bar */}
-      <header className={`sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-3 flex-wrap border-b backdrop-blur-md transition-colors ${
-        isLight ? 'bg-[#EFECE6]/95 border-[#E2DDD5]' : 'bg-[#0B0F19]/90 border-slate-800/80'
+      {/* Top Header Bar */}
+      <header className={`sticky top-0 z-40 px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap border-b backdrop-blur-md transition-colors ${
+        isLight ? 'bg-[#FAF8F5]/95 border-[#E2DDD5]' : 'bg-[#0B0F19]/90 border-slate-800/80'
       }`}>
         <div className="flex items-center gap-3">
+          {/* Mobile Sidebar Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileSidebarOpen(prev => !prev)}
+            className={`lg:hidden p-1.5 rounded-xl border transition ${
+              isLight ? 'bg-white border-[#E2DDD5] text-slate-700' : 'bg-slate-900 border-slate-800 text-slate-200'
+            }`}
+            title="Mở menu danh mục"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+
           <Link
             href="/"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer active:scale-95 shadow-xs ${
@@ -210,7 +313,8 @@ export default function DocsHubPage() {
             }`}
           >
             <ArrowLeft className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-cyan-400'}`} />
-            <span>Trở Về Bàn Điều Khiển</span>
+            <span className="hidden sm:inline">Trở Về Canvas</span>
+            <span className="sm:hidden">Canvas</span>
           </Link>
 
           <div className={`h-4 w-px hidden sm:block ${isLight ? 'bg-[#E2DDD5]' : 'bg-slate-800'}`} />
@@ -222,18 +326,18 @@ export default function DocsHubPage() {
               <BookOpen className="w-4 h-4" />
             </div>
             <div>
-              <h1 className={`text-sm font-extrabold tracking-tight flex items-center gap-1.5 ${
+              <h1 className={`text-xs sm:text-sm font-extrabold tracking-tight flex items-center gap-1.5 ${
                 isLight ? 'text-slate-900' : 'text-white'
               }`}>
-                <span>Trung Tâm Tài Liệu Dự Án Đa Nền Tảng</span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${
+                <span>Tài Liệu Kỹ Thuật (Docs Hub)</span>
+                <span className={`px-1.5 py-0.2 rounded text-[9.5px] font-mono border font-bold ${
                   isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
                 }`}>
-                  DOCS HUB
+                  NESTJS STYLE
                 </span>
               </h1>
-              <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                Quản lý & tra cứu tài liệu kiến trúc, CI/CD, bảo mật và chỉ thị Agent Squad
+              <p className={`text-[10.5px] hidden md:block ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                100% Tiếng Việt • Kiến trúc, Pipeline, 3 Cổng Bảo Mật & 13 Subagents
               </p>
             </div>
           </div>
@@ -245,7 +349,7 @@ export default function DocsHubPage() {
             isLight ? 'bg-white border-[#E2DDD5]' : 'bg-slate-900/90 border-slate-800'
           }`}>
             <Cpu className={`w-3.5 h-3.5 ${isLight ? 'text-blue-600' : 'text-cyan-400'}`} />
-            <span className={`text-[11px] font-semibold ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Dự Án:</span>
+            <span className={`text-[11px] font-semibold hidden sm:inline ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Dự Án:</span>
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
@@ -255,7 +359,7 @@ export default function DocsHubPage() {
             >
               {AVAILABLE_PROJECTS.map((p) => (
                 <option key={p.id} value={p.id} className={isLight ? 'bg-white text-slate-900' : 'bg-slate-900 text-slate-200'}>
-                  {p.name} {p.isCurrent ? "(Hiện Tại)" : ""}
+                  {p.name}
                 </option>
               ))}
             </select>
@@ -270,17 +374,17 @@ export default function DocsHubPage() {
                 ? 'bg-white hover:bg-slate-100 text-amber-800 border-[#E2DDD5]' 
                 : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border-slate-700'
             }`}
-            title="Chuyển đổi giao diện Sáng (Be Sang Trọng) / Tối"
+            title="Chuyển đổi giao diện Sáng / Tối"
           >
             {isLight ? (
               <>
                 <Sun className="w-3.5 h-3.5 text-amber-600 fill-amber-500/30" />
-                <span>Sáng</span>
+                <span className="hidden sm:inline">Sáng</span>
               </>
             ) : (
               <>
                 <Moon className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Tối</span>
+                <span className="hidden sm:inline">Tối</span>
               </>
             )}
           </button>
@@ -291,30 +395,35 @@ export default function DocsHubPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition cursor-pointer active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Thêm Tài Liệu Mới</span>
+            <span className="hidden sm:inline">Thêm Bài Mới</span>
           </button>
         </div>
       </header>
 
-      {/* Main Content Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left Sidebar: Filters & Doc List */}
-        <aside className={`w-full lg:w-80 lg:min-w-[320px] border-b lg:border-b-0 lg:border-r flex flex-col shrink-0 transition-colors ${
-          isLight ? 'bg-white border-[#E2DDD5]' : 'bg-[#0A0E17] border-slate-800/80'
-        }`}>
-          {/* Search Box */}
-          <div className={`p-3 border-b ${isLight ? 'border-[#E2DDD5] bg-[#FAF8F5]' : 'border-slate-800/80'}`}>
+      {/* 2-Column Body Layout (NestJS Style) */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Sidebar: Accordion Group Tree */}
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-30
+          w-72 sm:w-80 lg:min-w-[300px] lg:max-w-[320px]
+          transform transition-transform duration-200 ease-in-out
+          ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          border-r flex flex-col shrink-0
+          ${isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-[#0B0F19] border-slate-800/80'}
+        `}>
+          {/* Search Box inside Sidebar */}
+          <div className={`p-3 border-b ${isLight ? 'border-[#E2DDD5] bg-white' : 'border-slate-800/80 bg-[#0E1528]'}`}>
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm kiếm tài liệu, lệnh, từ khóa..."
+                placeholder="Tìm kiếm tài liệu & từ khóa..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`w-full pl-9 pr-8 py-1.5 rounded-xl text-xs transition outline-hidden border ${
                   isLight 
-                    ? 'bg-white border-[#E2DDD5] text-slate-900 placeholder-slate-400 focus:border-blue-500' 
-                    : 'bg-slate-900/80 border-slate-800 text-slate-200 placeholder-slate-500 focus:border-cyan-500'
+                    ? 'bg-[#F7F5F0] border-[#E2DDD5] text-slate-900 placeholder-slate-400 focus:border-blue-500' 
+                    : 'bg-slate-900 border-slate-800 text-slate-200 placeholder-slate-500 focus:border-cyan-500'
                 }`}
               />
               {searchQuery && (
@@ -329,188 +438,266 @@ export default function DocsHubPage() {
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div className={`p-3 border-b flex gap-1.5 overflow-x-auto scrollbar-none ${
-            isLight ? 'border-[#E2DDD5] bg-white' : 'border-slate-800/80'
-          }`}>
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("all")}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer border ${
-                selectedCategory === "all"
-                  ? (isLight ? "bg-blue-600 text-white border-blue-600 shadow-xs" : "bg-cyan-500/20 text-cyan-300 border-cyan-500/40")
-                  : (isLight ? "bg-[#FAF8F5] text-slate-700 hover:bg-slate-100 border-[#E2DDD5]" : "bg-slate-900/80 text-slate-400 hover:text-slate-200 border-slate-800")
-              }`}
-            >
-              Tất Cả ({docs.length})
-            </button>
-            {categories.filter(c => c.key !== "all").map((cat) => (
-              <button
-                key={cat.key}
-                type="button"
-                onClick={() => setSelectedCategory(cat.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1 border ${
-                  selectedCategory === cat.key
-                    ? (isLight ? "bg-blue-600 text-white border-blue-600 shadow-xs" : "bg-cyan-500/20 text-cyan-300 border-cyan-500/40")
-                    : (isLight ? "bg-[#FAF8F5] text-slate-700 hover:bg-slate-100 border-[#E2DDD5]" : "bg-slate-900/80 text-slate-400 hover:text-slate-200 border-slate-800")
-                }`}
-              >
-                {getCategoryIcon(cat.key)}
-                <span>{cat.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* Accordion List */}
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
+            {DOC_ACCORDION_GROUPS.map((group) => {
+              const groupDocs = docsByGroup[group.key] || [];
+              const isExpanded = expandedGroups[group.key] ?? true;
 
-          {/* Document List */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-1.5 max-h-[35vh] lg:max-h-none">
-            {isLoading ? (
-              <div className="p-6 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                <RefreshCw className="w-4 h-4 animate-spin text-blue-600 dark:text-cyan-400" />
-                <span>Đang tải danh mục tài liệu...</span>
-              </div>
-            ) : filteredDocs.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500">
-                Không tìm thấy tài liệu phù hợp với từ khóa.
-              </div>
-            ) : (
-              filteredDocs.map((doc) => {
-                const isSelected = selectedDoc?.id === doc.id;
-                return (
+              // Hide empty groups when searching
+              if (searchQuery && groupDocs.length === 0) return null;
+
+              return (
+                <div key={group.key} className="rounded-xl overflow-hidden">
+                  {/* Group Header (Clickable Accordion) */}
                   <button
-                    key={doc.id}
                     type="button"
-                    onClick={() => setSelectedDoc(doc)}
-                    className={`w-full text-left p-3 rounded-xl border transition cursor-pointer flex flex-col gap-1 shadow-xs ${
-                      isSelected
-                        ? (isLight ? "bg-blue-50/80 border-blue-500 ring-2 ring-blue-400/20 text-blue-950" : "bg-cyan-950/40 border-cyan-500/50 shadow-sm")
-                        : (isLight ? "bg-[#FAF8F5] hover:bg-white border-[#E2DDD5] text-slate-800" : "bg-slate-900/40 hover:bg-slate-900/80 border-slate-800/80")
+                    onClick={() => toggleGroup(group.key)}
+                    className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-left transition cursor-pointer font-bold text-[11px] uppercase tracking-wider ${
+                      isLight 
+                        ? 'hover:bg-[#EFECE6] text-slate-700' 
+                        : 'hover:bg-slate-900 text-slate-300'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        {getCategoryIcon(doc.categoryKey)}
-                        <span className={`text-[11px] font-bold truncate ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                          {doc.category}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400 shrink-0">
-                        #{String(doc.order).padStart(2, "0")}
+                    <div className="flex items-center gap-2 min-w-0">
+                      {getGroupIcon(group.key)}
+                      <span className="truncate">{group.title}</span>
+                      <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full border ${
+                        isLight ? 'bg-white border-[#E2DDD5] text-slate-600' : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}>
+                        {groupDocs.length}
                       </span>
                     </div>
 
-                    <div className={`text-xs font-bold line-clamp-1 ${
-                      isSelected ? (isLight ? "text-blue-700" : "text-cyan-300") : (isLight ? "text-slate-900" : "text-slate-200")
-                    }`}>
-                      {doc.title}
+                    <div className="text-slate-400 shrink-0">
+                      {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                     </div>
-
-                    <p className={`text-[11px] line-clamp-2 leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                      {doc.summary}
-                    </p>
-
-                    {doc.tags && doc.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {doc.tags.slice(0, 3).map((tag: string, tIdx: number) => (
-                          <span
-                            key={tIdx}
-                            className={`px-1.5 py-0.2 rounded text-[9.5px] font-mono border ${
-                              isLight ? 'bg-white text-slate-600 border-[#E2DDD5]' : 'bg-slate-800 text-slate-400 border-slate-700/60'
-                            }`}
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </button>
-                );
-              })
-            )}
+
+                  {/* Group Items (Child Docs) */}
+                  {isExpanded && (
+                    <div className="mt-1 pl-2 space-y-0.5 border-l-2 border-slate-200 dark:border-slate-800 ml-4">
+                      {groupDocs.length === 0 ? (
+                        <div className="px-3 py-1.5 text-[11px] text-slate-400 italic">
+                          Chưa có tài liệu
+                        </div>
+                      ) : (
+                        groupDocs.map((doc) => {
+                          const isSelected = selectedDocId === doc.id;
+                          return (
+                            <button
+                              key={doc.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedDocId(doc.id);
+                                setIsMobileSidebarOpen(false);
+                              }}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-xs transition cursor-pointer flex items-center justify-between gap-2 relative ${
+                                isSelected
+                                  ? (isLight 
+                                      ? 'bg-blue-50/90 text-blue-700 font-bold border border-blue-200/80 shadow-xs' 
+                                      : 'bg-cyan-950/40 text-cyan-300 font-bold border border-cyan-800/60 shadow-xs')
+                                  : (isLight 
+                                      ? 'text-slate-700 hover:text-slate-950 hover:bg-[#EFECE6]/60' 
+                                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60')
+                              }`}
+                            >
+                              {/* NestJS Style Vertical Accent Indicator */}
+                              {isSelected && (
+                                <span className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full ${
+                                  isLight ? 'bg-blue-600' : 'bg-cyan-400'
+                                }`} />
+                              )}
+
+                              <span className="truncate leading-tight pl-1.5">
+                                {doc.title}
+                              </span>
+
+                              {doc.readTime && (
+                                <span className={`text-[10px] font-mono shrink-0 ${
+                                  isSelected ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'
+                                }`}>
+                                  {doc.readTime}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </aside>
 
-        {/* Right Reader Area */}
-        <main className={`flex-1 flex flex-col overflow-hidden transition-colors ${
+        {/* Mobile Backdrop Overlay */}
+        {isMobileSidebarOpen && (
+          <div 
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-20 lg:hidden"
+          />
+        )}
+
+        {/* Right Main Content Area: Maximum Width Reading Canvas */}
+        <main className={`flex-1 flex flex-col overflow-y-auto transition-colors ${
           isLight ? 'bg-[#F7F5F0]' : 'bg-[#07090E]'
         }`}>
           {selectedDoc ? (
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Doc Title & Action Bar */}
-              <div className={`px-5 py-3.5 border-b flex items-center justify-between gap-3 flex-wrap ${
+            <div className="flex-1 flex flex-col">
+              {/* Document Header & Meta */}
+              <div className={`px-6 sm:px-10 py-6 border-b transition-colors ${
                 isLight ? 'bg-white border-[#E2DDD5]' : 'bg-[#0B0F19] border-slate-800/80'
               }`}>
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono border ${
-                      isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
+                {/* Breadcrumbs */}
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-2 flex-wrap">
+                  <Link href="/" className="hover:underline">Workflow</Link>
+                  <span>/</span>
+                  <span>Tài Liệu</span>
+                  <span>/</span>
+                  <span className={isLight ? 'text-blue-700' : 'text-cyan-400'}>{selectedDoc.category}</span>
+                </div>
+
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="space-y-2 max-w-3xl">
+                    <h1 className={`text-xl sm:text-2xl font-black tracking-tight leading-snug ${
+                      isLight ? 'text-slate-900' : 'text-white'
                     }`}>
-                      {selectedDoc.category}
-                    </span>
-                    <span className={`text-xs font-mono ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>
-                      Tệp: {selectedDoc.filename}
-                    </span>
+                      {selectedDoc.title}
+                    </h1>
+
+                    <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
+                      <span className={`px-2 py-0.5 rounded-md text-[10.5px] font-bold font-mono border ${
+                        isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
+                      }`}>
+                        {selectedDoc.category}
+                      </span>
+                      {selectedDoc.readTime && (
+                        <span>• Thời gian đọc: {selectedDoc.readTime}</span>
+                      )}
+                      <span>• Tệp: {selectedDoc.filename}</span>
+                    </div>
                   </div>
-                  <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${
-                    isLight ? 'text-slate-900' : 'text-white'
-                  }`}>
-                    {selectedDoc.title}
-                  </h2>
+
+                  {/* Actions: Copy Markdown & Download */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleCopyContent}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer active:scale-95 shadow-xs ${
+                        isLight 
+                          ? 'bg-[#FAF8F5] hover:bg-slate-100 text-slate-800 border-[#E2DDD5]' 
+                          : 'bg-slate-900 border-slate-700 hover:bg-slate-800 text-slate-200'
+                      }`}
+                    >
+                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                      <span>{isCopied ? "Đã Sao Chép" : "Sao Chép"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleDownloadMd}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer active:scale-95 shadow-xs ${
+                        isLight 
+                          ? 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200' 
+                          : 'bg-cyan-950/60 border-cyan-700/60 hover:bg-cyan-900/80 text-cyan-300'
+                      }`}
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Tải .md</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleCopyContent}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer active:scale-95 shadow-xs ${
-                      isLight 
-                        ? 'bg-[#FAF8F5] hover:bg-slate-100 text-slate-800 border-[#E2DDD5]' 
-                        : 'bg-slate-900 border-slate-700 hover:bg-slate-800 text-slate-200'
-                    }`}
-                  >
-                    {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-                    <span>{isCopied ? "Đã Sao Chép" : "Sao Chép"}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDownloadMd}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer active:scale-95 shadow-xs ${
-                      isLight 
-                        ? 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200' 
-                        : 'bg-cyan-950/60 border-cyan-700/60 hover:bg-cyan-900/80 text-cyan-300'
-                    }`}
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Tải Về .md</span>
-                  </button>
-                </div>
+                {/* On-Page Quick Jump Pills */}
+                {onPageHeadings.length > 0 && (
+                  <div className="mt-5 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                      <span>Mục Lục Đề Mục Nhanh:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {onPageHeadings.map((h) => (
+                        <button
+                          key={h.id}
+                          type="button"
+                          onClick={() => scrollToSection(h.id)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition cursor-pointer border ${
+                            isLight 
+                              ? 'bg-[#FAF8F5] hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border-[#E2DDD5] text-slate-700' 
+                              : 'bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-300 hover:border-cyan-700/60 border-slate-800 text-slate-300'
+                          }`}
+                        >
+                          #{h.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Doc Content Viewer */}
-              <div className="flex-1 p-5 sm:p-8 overflow-y-auto max-w-5xl space-y-6">
-                <div className={`p-4 rounded-2xl border text-xs leading-relaxed shadow-xs ${
-                  isLight 
-                    ? 'bg-blue-50/70 border-blue-200 text-blue-900' 
-                    : 'bg-cyan-950/20 border-cyan-800/40 text-cyan-200/90'
-                }`}>
-                  <span className={`font-bold ${isLight ? 'text-blue-800' : 'text-cyan-300'}`}>Tóm tắt tài liệu:</span> {selectedDoc.summary}
-                </div>
+              {/* Main Reading Canvas */}
+              <div className="px-6 sm:px-10 py-8 max-w-4xl w-full">
+                <MarkdownDocViewer content={selectedDoc.content} isLight={isLight} />
 
-                <div className="prose max-w-none text-xs sm:text-[13px] leading-relaxed font-sans space-y-4">
-                  <pre className={`p-5 rounded-2xl border font-mono text-[11px] sm:text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed shadow-xs ${
-                    isLight 
-                      ? 'bg-white border-[#E2DDD5] text-slate-800' 
-                      : 'bg-[#0B0F19] border-slate-800 text-slate-200'
-                  }`}>
-                    {selectedDoc.content}
-                  </pre>
+                {/* Pagination Footer */}
+                <div className={`mt-12 pt-6 border-t flex items-center justify-between gap-4 flex-wrap ${
+                  isLight ? 'border-[#E2DDD5]' : 'border-slate-800'
+                }`}>
+                  {prevDoc ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDocId(prevDoc.id);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`flex flex-col items-start p-3.5 rounded-xl border text-left transition cursor-pointer max-w-[48%] shadow-xs ${
+                        isLight 
+                          ? 'bg-white hover:bg-slate-50 border-[#E2DDD5]' 
+                          : 'bg-[#0B0F19] hover:bg-slate-900 border-slate-800'
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <ArrowLeft className="w-3 h-3" /> Bài Trước
+                      </span>
+                      <span className={`text-xs font-extrabold truncate w-full mt-1 ${
+                        isLight ? 'text-blue-700' : 'text-cyan-300'
+                      }`}>
+                        {prevDoc.title}
+                      </span>
+                    </button>
+                  ) : <div />}
+
+                  {nextDoc && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDocId(nextDoc.id);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`flex flex-col items-end p-3.5 rounded-xl border text-right transition cursor-pointer max-w-[48%] ml-auto shadow-xs ${
+                        isLight 
+                          ? 'bg-white hover:bg-slate-50 border-[#E2DDD5]' 
+                          : 'bg-[#0B0F19] hover:bg-slate-900 border-slate-800'
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        Bài Tiếp Theo <ArrowRight className="w-3 h-3" />
+                      </span>
+                      <span className={`text-xs font-extrabold truncate w-full mt-1 ${
+                        isLight ? 'text-blue-700' : 'text-cyan-300'
+                      }`}>
+                        {nextDoc.title}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400">
               <BookOpen className="w-12 h-12 stroke-1 text-slate-400 mb-3" />
-              <p className={`text-sm font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Chọn một tài liệu để bắt đầu đọc</p>
+              <p className={`text-sm font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Chọn một bài viết trong danh mục để đọc</p>
             </div>
           )}
         </main>
@@ -519,32 +706,32 @@ export default function DocsHubPage() {
       {/* Add New Document Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className={`w-full max-w-2xl border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] ${
-            isLight ? 'bg-white border-[#E2DDD5]' : 'bg-[#0E1526] border-slate-800'
+          <div className={`w-full max-w-2xl rounded-2xl border p-5 sm:p-6 shadow-2xl ${
+            isLight ? 'bg-white border-[#E2DDD5]' : 'bg-[#0B0F19] border-slate-800 text-slate-100'
           }`}>
-            <div className={`px-5 py-4 border-b flex items-center justify-between ${
-              isLight ? 'border-[#E2DDD5] bg-[#FAF8F5]' : 'border-slate-800 bg-[#0C1322]'
-            }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <FileText className={`w-4 h-4 ${isLight ? 'text-blue-600' : 'text-cyan-400'}`} />
-                <h3 className={`text-sm font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>Thêm Tài Liệu Kỹ Thuật Mới</h3>
+                <div className="p-1.5 rounded-lg bg-blue-600/10 text-blue-600 dark:text-cyan-400">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <h3 className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Tạo Tài Liệu Kỹ Thuật Mới</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateDoc} className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+            <form onSubmit={handleCreateDoc} className="space-y-3 mt-4 text-xs">
               <div>
                 <label className={`block text-[11px] font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Tiêu Đề Tài Liệu *</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ví dụ: Hướng dẫn cấu hình Redis Cluster & Cache RLS"
+                  placeholder="Ví dụ: Hướng dẫn cấu hình ArgoCD GitOps & Kubernetes"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-xl outline-hidden ${
@@ -557,36 +744,41 @@ export default function DocsHubPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={`block text-[11px] font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Chuyên Mục</label>
+                  <label className={`block text-[11px] font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Nhóm Danh Mục</label>
                   <select
                     value={newCategoryKey}
                     onChange={(e) => {
-                      setNewCategoryKey(e.target.value);
-                      const matched = categories.find(c => c.key === e.target.value);
-                      if (matched) setNewCategory(matched.label);
+                      const val = e.target.value;
+                      setNewCategoryKey(val);
+                      if (val === "architecture") setNewCategory("Kiến Trúc & Đội Ngũ");
+                      else if (val === "git") setNewCategory("Git & Quản Lý Mã Nguồn");
+                      else if (val === "ci") setNewCategory("CI / CD Tự Động Hóa");
+                      else if (val === "security") setNewCategory("Bảo Mật & Quét Lỗ Hổng");
+                      else if (val === "docker") setNewCategory("Đóng Gói Container");
+                      else if (val === "k8s") setNewCategory("Kubernetes & GitOps");
+                      else if (val === "monitoring") setNewCategory("Giám Sát & Cảnh Báo");
                     }}
-                    className={`w-full px-3 py-2 border rounded-xl outline-hidden cursor-pointer ${
+                    className={`w-full px-3 py-2 border rounded-xl outline-hidden ${
                       isLight 
                         ? 'bg-[#FAF8F5] border-[#E2DDD5] text-slate-900 focus:border-blue-500' 
                         : 'bg-slate-900 border-slate-800 text-slate-200 focus:border-cyan-500'
                     }`}
                   >
                     <option value="architecture">Kiến Trúc & Đội Ngũ</option>
-                    <option value="git">Workspace & Git</option>
-                    <option value="ci">Jenkins & CI Server</option>
-                    <option value="security">An Ninh & Quét Lỗ Hổng</option>
-                    <option value="docker">Docker & Registry</option>
-                    <option value="kubernetes">Kubernetes & GitOps</option>
-                    <option value="monitoring">Giám Sát & Alerts</option>
-                    <option value="general">Khác / Tùy Biến</option>
+                    <option value="git">Git & Quản Lý Mã Nguồn</option>
+                    <option value="ci">CI / CD Tự Động Hóa</option>
+                    <option value="security">Bảo Mật & Quét Lỗ Hổng</option>
+                    <option value="docker">Đóng Gói Container</option>
+                    <option value="k8s">Kubernetes & GitOps</option>
+                    <option value="monitoring">Giám Sát & Cảnh Báo</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className={`block text-[11px] font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Thẻ (Tags, cách nhau dấu phẩy)</label>
+                  <label className={`block text-[11px] font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Thẻ Tags (cách nhau bởi dấu phẩy)</label>
                   <input
                     type="text"
-                    placeholder="Redis, Cache, Security, Supabase"
+                    placeholder="GitOps, ArgoCD, Kubernetes, YAML"
                     value={newTags}
                     onChange={(e) => setNewTags(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-xl outline-hidden ${
@@ -618,7 +810,7 @@ export default function DocsHubPage() {
                 <textarea
                   required
                   rows={8}
-                  placeholder="# Tiêu Đề Tài Liệu`n`nNội dung hướng dẫn chi tiết từng bước, cấu hình, mã lệnh terminal..."
+                  placeholder="# Tiêu Đề Bài Viết&#10;&#10;Nội dung hướng dẫn chi tiết từng bước, cấu hình, mã lệnh terminal..."
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
                   className={`w-full p-3 border rounded-xl font-mono text-[11px] leading-relaxed outline-hidden ${

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
@@ -25,6 +25,7 @@ import {
   Folder
 } from 'lucide-react';
 import { BUNDLED_TECHNICAL_DOCS, DOC_CATEGORIES } from '@/lib/docsData';
+import { MarkdownDocViewer } from '@/components/MarkdownDocViewer';
 
 export interface DocItem {
   id: string;
@@ -625,7 +626,7 @@ export default function DocumentationModal({
                 </div>
 
                 {/* Markdown Reader Body */}
-                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-2">
+                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
                   <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed mb-4 shadow-xs ${
                     isLight 
                       ? 'bg-blue-50/70 border-blue-200 text-blue-900' 
@@ -634,7 +635,7 @@ export default function DocumentationModal({
                     <span className="font-bold">Tóm tắt tài liệu:</span> {selectedDoc.summary}
                   </div>
 
-                  {renderMarkdown(selectedDoc.content)}
+                  <MarkdownDocViewer content={selectedDoc.content} isLight={isLight} />
                 </div>
               </>
             ) : (
