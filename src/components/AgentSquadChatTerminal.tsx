@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { 
   Sparkles, 
   Send, 
@@ -21,7 +22,9 @@ import {
   Code,
   Layers,
   ShieldCheck,
-  Zap
+  Zap,
+  Key,
+  BookOpen
 } from 'lucide-react';
 import { ChatMessage } from '@/app/api/chat/route';
 import { CLIExecutionResult } from '@/app/api/cli/route';

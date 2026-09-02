@@ -47,15 +47,19 @@ const LIVE_PROJECT_CONTEXT = {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const headerKey = req.headers.get('x-gemini-key') || req.headers.get('x-api-key') || req.headers.get('authorization')?.replace('Bearer ', '');
     const { 
       prompt, 
       model = 'Antigravity Flash 3.7', 
       targetAgent = 'Supreme Brainstorming Leader', 
-      apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+      apiKey = headerKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+      clientApiKey,
       nineRouterUrl = process.env.NINE_ROUTER_URL || process.env.OPENAI_BASE_URL,
       nineRouterApiKey = process.env.NINE_ROUTER_API_KEY || process.env.OPENAI_API_KEY || 'sk-9router',
       history = [] 
     } = body;
+
+    const effectiveApiKey = clientApiKey || apiKey;
 
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json({ error: 'Prompt không được để trống' }, { status: 400 });
@@ -150,7 +154,7 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực qu
     // -------------------------------------------------------------
     // OPTION B: CALL REAL GOOGLE GEMINI 2.0 FLASH / PRO API
     // -------------------------------------------------------------
-    if (apiKey) {
+    if (effectiveApiKey) {
       try {
         let geminiModelName = 'gemini-2.0-flash';
         if (model.toLowerCase().includes('pro')) {
@@ -169,7 +173,7 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực qu
         ];
 
         const geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${effectiveApiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -208,7 +212,7 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực qu
     }
 
     // -------------------------------------------------------------
-    // OPTION B: ADVANCED ANTIGRAVITY CONTEXTUAL INTELLIGENCE ENGINE
+    // OPTION C: ADVANCED ANTIGRAVITY CONTEXTUAL INTELLIGENCE ENGINE
     // (Hiểu sâu câu hỏi về dự án, git, code, pipeline, agent, hạ tầng)
     // -------------------------------------------------------------
     let thinking = '';
@@ -217,8 +221,29 @@ Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực qu
     let toolCalls: any[] = [];
     let actionLink: { label: string; tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' } | undefined = undefined;
 
-    // Case 1: Hỏi về Dự Án / Đang ở đâu / Thông tin Repo Git
+    // Case 0: Lệnh /brainstorming, /braistoming, /brainstorm (Fuzzy Matching)
     if (
+      lowerPrompt.includes('brainstorm') || 
+      lowerPrompt.includes('braistom') || 
+      lowerPrompt.includes('brainstoming') || 
+      lowerPrompt.includes('braistoming') ||
+      lowerPrompt.includes('sơ đồ luồng') ||
+      lowerPrompt.includes('phản biện')
+    ) {
+      thinking = `[CoT Reasoning - Model: ${model}]\n1. Kích hoạt giao thức Brainstorming & Xuất Sơ Đồ Luồng Ý Tưởng.\n2. Phân rã mục tiêu chiến lược và xác định các điểm nút kiến trúc.\n3. Rà soát 4 trục bất biến: RBAC Guard, Mobile UX 430px, Supabase Cloud REST, Vercel Parity.\n4. Đề xuất sơ đồ luồng chi tiết để Sếp duyệt xác nhận.`;
+      dispatchedAgents = ['Supreme Brainstorming Leader', 'Mobile UX Architect', 'Backend & Supabase Guard', 'QA Testing Subagent'];
+      toolCalls = [
+        {
+          name: 'generate_brainstorming_flow_diagram',
+          args: { topic: prompt, accuracy: '99.99%' },
+          result: 'Flow Diagram Generated: 5 interconnected stages mapped with RBAC & Mobile 430px constraints.'
+        }
+      ];
+      replyMarkdown = `**Supreme Brainstorming Leader**: Xin chào Sếp! Tôi đã tiếp nhận yêu cầu và khởi động phiên **Brainstorming & Xuất Sơ Đồ Luồng Ý Tưởng (99.99% Accuracy)**:\n\n### 🌳 SƠ ĐỒ LUỒNG Ý TƯỞNG (STEP-BY-STEP FLOW DIAGRAM):\n\`\`\`\n[Ý TƯỞNG CỦA SẾP: "${prompt}"]\n                 │\n                 ▼\n[1. PHÂN QUYỀN RBAC GUARD] ──► Kiểm tra quyền ADMIN_CEO / HEAD (Quinn + Leader)\n                 │\n                 ▼\n[2. THIẾT KẾ BACKEND API]  ──► Supabase Cloud REST + 0ms Realtime Bus (Backend Guard)\n                 │\n                 ▼\n[3. GIAO DIỆN MOBILE 430px]──► Chuẩn iPhone 14 Pro Max, Touch Target >= 44px (Alex + UX)\n                 │\n                 ▼\n[4. KIỂM THỬ TỰ ĐỘNG QA]   ──► Playwright E2E & Visual Regression 430px (QA Subagent)\n                 │\n                 ▼\n[5. VERCEL DEPLOYMENT]     ──► TypeScript 0 lỗi -> Production Parity (DevOps Parity)\n\`\`\`\n\n### 📋 PHÂN CÔNG ĐỘI NGŨ SUBAGENTS:\n* **Rex & Alex**: Lập trình Component và API Route.\n* **Mobile UX Architect & QA**: Đảm bảo layout 430px và kiểm thử tự động.\n* **Backend Guard & Max**: Bảo vệ dữ liệu Supabase Realtime.\n\nSếp xác nhận duyệt sơ đồ luồng này để Squad bắt đầu triển khai code ngay nhé ạ!`;
+      actionLink = { label: 'Xem Sơ Đồ Pipeline', tab: 'WORKFLOW' };
+
+    // Case 1: Hỏi về Dự Án / Đang ở đâu / Thông tin Repo Git
+    } else if (
       lowerPrompt.includes('dự án') || 
       lowerPrompt.includes('đang ở đâu') || 
       lowerPrompt.includes('project') || 

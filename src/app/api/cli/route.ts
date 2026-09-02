@@ -220,18 +220,25 @@ workflow.config.json`;
 
     } else if (mainCmd.startsWith('/')) {
       // Slash Command
-      const slash = mainCmd.substring(1);
-      if (slash === 'brainstorming' || slash === 'brainstorm' || slash === 'grill-me' || slash === 'grillme') {
-        subagent = 'Supreme NLP Leader';
-        stdout = `[BRAINSTORMING CO-CREATION & DECOMPOSITION PROTOCOL ACTIVATED - 99.99% ACCURACY]
-Supreme NLP Leader & Hội Đồng Kiến Trúc Sư khởi động phiên Brainstorming đa chiều:
+      const slash = mainCmd.substring(1).toLowerCase();
+      if (
+        slash === 'brainstorming' || 
+        slash === 'brainstorm' || 
+        slash === 'braistoming' || 
+        slash === 'braistorm' || 
+        slash === 'grill-me' || 
+        slash === 'grillme'
+      ) {
+        subagent = 'Supreme Brainstorming Leader';
+        stdout = `[SUPREME BRAINSTORMING LEADER PROTOCOL ACTIVATED - 99.99% ACCURACY]
+Supreme Brainstorming Leader & Hội Đồng 13 AI Subagents khởi động phiên Brainstorming đa chiều:
 1. Thấu cảm mục tiêu: Phân rã mục tiêu nghiệp vụ thành các nhánh giải pháp tối ưu.
 2. Phân quyền RBAC Guard: Yêu cầu áp dụng cho ADMIN_CEO / HEAD hay mở rộng cho DEV/QA?
 3. Chuẩn UI Mobile 430px: Viewport iPhone 14 Pro Max, touch target >= 44px, nút 11.5px-12.5px.
 4. Dữ liệu & Realtime: Supabase Cloud REST 100% + Event Bus 0ms (CustomEvent('gcm_*_updated')).
 5. Vercel Parity: TypeScript 0 lỗi, build sạch sẽ trước khi bàn giao.
 
-[STATUS]: Đang sẵn sàng đồng sáng tạo và phản biện từng nhánh quyết định cùng bạn!`;
+[STATUS]: Đang sẵn sàng xuất sơ đồ luồng chi tiết và đồng hành cùng bạn!`;
       } else if (slash === 'goal') {
         stdout = `[GOAL MODE ACTIVATED] Autonomous objective scheduled: "${parts.slice(1).join(' ')}". Running 24/7 background agent loop.`;
       } else if (slash === 'boost') {

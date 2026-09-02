@@ -5,15 +5,17 @@ export interface TechnicalDocGuideItem {
   order: number;
   filename: string;
   title: string;
-  category: 'Git' | 'CI' | 'Bảo Mật' | 'Docker' | 'K8s' | 'Giám Sát';
-  categoryKey: 'git' | 'ci' | 'security' | 'docker' | 'k8s' | 'telemetry';
-  readTime: string;
+  category: string;
+  categoryKey: string;
+  readTime?: string;
   summary: string;
   description?: string;
-  tags: string[];
+  tags?: string[];
   content: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
+
+export type TechnicalDoc = TechnicalDocGuideItem;
 
 export const BUNDLED_TECHNICAL_DOCS: TechnicalDocGuideItem[] = [
   {
