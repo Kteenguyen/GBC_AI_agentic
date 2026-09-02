@@ -72,7 +72,7 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
   const [activeMode, setActiveMode] = useState<'CHAT' | 'CLI'>('CLI'); // Mặc định mở CLI trực tiếp theo yêu cầu
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const [selectedModel, setSelectedModel] = useState<string>('Antigravity Flash 3.7');
-  const [targetAgent, setTargetAgent] = useState<string>('Supreme NLP Leader');
+  const [targetAgent, setTargetAgent] = useState<string>('Supreme Brainstorming Leader');
   const [inputPrompt, setInputPrompt] = useState<string>('');
   const [isThinkingOpen, setIsThinkingOpen] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -82,9 +82,9 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
     {
       id: 'init-msg',
       role: 'assistant',
-      content: `Xin chào! Tôi là **Supreme NLP Leader** điều phối **13 AI Subagents Tự Hành** tại dự án **\`Workflow\`** (\`https://github.com/Kteenguyen/GBC_AI_agentic.git\`).\n\nBạn có thể gõ câu lệnh hoặc chuyển sang tab **Antigravity CLI (agy)** để chạy dòng lệnh terminal trực tiếp!`,
+      content: `Xin chào! Tôi là **Supreme Brainstorming Leader** - Tổng Chỉ Huy Tối Cao của **13 AI Subagents Tự Hành** tại dự án **\`Workflow\`** (\`https://github.com/Kteenguyen/GBC_AI_agentic.git\`).\n\nSau mỗi prompt của Sếp, tôi sẽ tự động **vẽ sơ đồ luồng ý tưởng** để xác nhận trước khi code, hoặc **hỏi và đề xuất giải pháp tối ưu** nếu ý tưởng cần làm rõ!`,
       timestamp: 'Vừa xong',
-      targetAgent: 'Supreme NLP Leader',
+      targetAgent: 'Supreme Brainstorming Leader',
       model: 'Antigravity Flash 3.7'
     }
   ]);
@@ -487,7 +487,7 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
                   isLight ? 'bg-white border-[#E2DDD5] text-slate-800' : 'bg-slate-900 border-slate-700 text-slate-200'
                 }`}
               >
-                <option value="Supreme NLP Leader">@Supreme NLP Leader (Chỉ huy)</option>
+                <option value="Supreme Brainstorming Leader">@Supreme Brainstorming Leader (Tổng Chỉ Huy)</option>
                 <option value="DevOps Parity Officer">@DevOps Parity Officer (CI/CD)</option>
                 <option value="QA Testing Subagent">@QA Testing Subagent (Kiểm thử)</option>
                 <option value="Mobile UX Architect">@Mobile UX Architect (Giao diện)</option>

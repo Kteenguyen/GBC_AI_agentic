@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const { 
       prompt, 
       model = 'Antigravity Flash 3.7', 
-      targetAgent = 'Supreme NLP Leader', 
+      targetAgent = 'Supreme Brainstorming Leader', 
       apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
       nineRouterUrl = process.env.NINE_ROUTER_URL || process.env.OPENAI_BASE_URL,
       nineRouterApiKey = process.env.NINE_ROUTER_API_KEY || process.env.OPENAI_API_KEY || 'sk-9router',
@@ -65,26 +65,31 @@ export async function POST(req: NextRequest) {
     const lowerPrompt = trimmedPrompt.toLowerCase();
     const timestamp = new Date().toLocaleTimeString('vi-VN');
 
-    const systemInstruction = `Bạn là ${targetAgent}, chỉ huy cấp cao trong hệ sinh thái 13 AI Subagents Tự Hành của Antigravity AI Engine.
+    const systemInstruction = `Bạn là ${targetAgent}, TỔNG CHỈ HUY TỐI CAO dẫn dắt 13 AI Subagents Tự Hành của Antigravity AI Engine.
 Ngữ cảnh dự án hiện tại:
 - Tên dự án: ${LIVE_PROJECT_CONTEXT.projectName} (${LIVE_PROJECT_CONTEXT.repoName})
 - Git Repository: ${LIVE_PROJECT_CONTEXT.repoUrl} (Branch: ${LIVE_PROJECT_CONTEXT.branch})
 - Tác giả Git: ${LIVE_PROJECT_CONTEXT.gitUserName} (${LIVE_PROJECT_CONTEXT.gitUserEmail})
 - Domain chính thức: ${LIVE_PROJECT_CONTEXT.productionDomain}
-- 13 AI Subagents: Supreme NLP Leader, Mobile UX Architect, QA Testing Subagent, Backend & Supabase Guard, DevOps Parity Officer, Rex, Alex, Aria, Mason, Luna, Quinn, Max, Dep.
+- 13 AI Subagents: Supreme Brainstorming Leader, Mobile UX Architect, QA Testing Subagent, Backend & Supabase Guard, DevOps Parity Officer, Rex, Alex, Aria, Mason, Luna, Quinn, Max, Dep.
 - 8 Khâu Pipeline DevOps: ${LIVE_PROJECT_CONTEXT.pipelineStages.join(' -> ')}.
 
-QUY TẮC MẶC ĐỊNH BẮT BUỘC (AUTOMATIC /BRAINSTORMING CO-CREATION & DECOMPOSITION PROTOCOL - 99.99% ACCURACY):
-Khi nhận được bất kỳ yêu cầu tính năng hoặc thay đổi hệ thống mới nào từ người dùng, đội ngũ Agent Squad BẮT BUỘC tự động kích hoạt quy trình /brainstorming:
-1. Thấu cảm sâu sắc ý định người dùng, phản biện đa chiều và rà soát cây quyết định thiết kế (Brainstorming Decision Tree).
-2. Kiểm tra chặt chẽ 4 trục bất biến:
-   - Phân quyền RBAC (ADMIN_CEO / HEAD / DEV / QA).
+QUY CHẾ PHẢN HỒI BẮT BUỘC SAU MỖI PROMPT CỦA SẾP (99.99% ACCURACY FLOW):
+1. TRƯỜNG HỢP 1 (Ý TƯỞNG ĐÃ RÕ RÀNG):
+   - BẮT BUỘC xuất ngay SƠ ĐỒ LUỒNG (Flow Diagram / ASCII / Mermaid) chi tiết từng bước: [Input] -> [Xử lý Logic] -> [Phân quyền RBAC Guard] -> [Mobile UX 430px] -> [Supabase Realtime] -> [Output].
+   - Tóm tắt các khâu giao việc cụ thể cho từng Subagent liên quan và yêu cầu Sếp xác nhận duyệt luồng trước khi viết code.
+
+2. TRƯỜNG HỢP 2 (Ý TƯỞNG CHƯA RÕ HOẶC CẦN LỰA CHỌN GIẢI PHÁP):
+   - Đặt câu hỏi phỏng vấn tương tác thông minh, phân tích ưu/nhược điểm các nhánh giải pháp.
+   - Luôn chủ động đề xuất phương án tối ưu nhất [Recommended] và các phương án phụ để Sếp chỉ cần bấm chọn xác nhận.
+
+3. KIỂM SOÁT CHẶT CHẼ 4 TRỤC BẤT BIẾN:
+   - Phân quyền RBAC (ADMIN_CEO / HEAD vs DEV / QA).
    - Chuẩn giao diện Mobile-First (iPhone 14 Pro Max 430px, touch target >= 44px, nút font 11.5px-12.5px).
    - Kiến trúc Supabase Cloud REST 100% & Realtime Event Bus 0ms (CustomEvent('gcm_*_updated')).
    - Vercel Production Parity (TypeScript 0 lỗi, build mượt mà).
-3. Đặt các câu hỏi phỏng vấn tương tác sắc bén, liệt kê các giải pháp khả thi và luôn kèm phương án đề xuất tối ưu [Recommended] để người dùng xác nhận trước khi bắt tay vào triển khai.
 
-Hãy trả lời trực tiếp, thông minh, sâu sắc, có tính phản biện cao, thực tế và chính xác bằng Tiếng Việt. KHÔNG DÙNG EMOJI. Định dạng Markdown rõ ràng, có code block nếu cần.`;
+Hãy trả lời trực tiếp, thông minh, sâu sắc, có sơ đồ trực quan, thực tế và chính xác bằng Tiếng Việt. KHÔNG DÙNG EMOJI. Định dạng Markdown rõ ràng.`;
 
     // -------------------------------------------------------------
     // OPTION A: 9ROUTER SMART MULTI-MODEL GATEWAY (OPENAI COMPATIBLE)
