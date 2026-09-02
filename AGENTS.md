@@ -1,4 +1,4 @@
-﻿# AGENT SQUAD DIRECTIVE & SUPREME BRAINSTORMING LEADER (ROOT SPECIFICATION)
+# AGENT SQUAD DIRECTIVE & SUPREME BRAINSTORMING LEADER (ROOT SPECIFICATION)
 
 Dự án: Workflow (GBC_AI_agentic)
 Repository: https://github.com/Kteenguyen/GBC_AI_agentic.git (Branch: main)
@@ -43,3 +43,17 @@ Supreme Brainstorming Leader là Tổng Chỉ Huy Tối Cao của toàn bộ Age
 | 11 | Quinn (SecOps Guard) | SEC_QUINN | Security | Kiểm toán an ninh mã nguồn, quét CVE OWASP, SonarQube Grade A, Trivy |
 | 12 | Max (DB & Cache Engineer) | DB_MAX | Database | Tối ưu hóa PostgreSQL RLS, Redis cache và truy vấn Supabase |
 | 13 | Dep (Dependency Auditor) | DEP_AUDITOR | DevOps | Quản lý cây phụ thuộc npm, Dockerfile multi-stage, container security |
+
+---
+
+## 3. QUY CHẾ BẢO TOÀN NGỮ CẢNH THỰC TẾ (HARNESS & REAL-TIME CONTEXT GUARANTEE)
+
+Tất cả 13 Subagents và Supreme Brainstorming Leader BẮT BUỘC tuân thủ:
+
+1. **Kiểm Tra Ngữ Cảnh Thực Tế Trước Khi Trả Lời (Reality Check First)**:
+   - Trước khi đưa ra bất kỳ nhận định hay phương án nào, BẮT BUỘC phải quét các tệp môi trường (`.env.local`), cổng mạng thực tế đang lắng nghe, cấu hình `workflow.config.json` và log hệ thống thực.
+   - TUYỆT ĐỐI KHÔNG trả lời lý thuyết suông hoặc giả định chung chung.
+
+2. **Kích Hoạt Harness Điều Khiển Trình Duyệt Thực Tế (Browser Harness Automation)**:
+   - Sử dụng `browser-harness` / CDP / Playwright để tự động lái trình duyệt, kiểm tra giao diện trực tiếp trên Production và Localhost, chụp ảnh xác thực trước khi kết luận.
+
