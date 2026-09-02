@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { 
+import { Settings, Globe, 
   Sparkles, 
   Send, 
   Bot, 
@@ -79,6 +79,44 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
   const [inputPrompt, setInputPrompt] = useState<string>('');
   const [isThinkingOpen, setIsThinkingOpen] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // 9Router and API Key Configuration States
+  const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
+  const [nineRouterUrl, setNineRouterUrl] = useState<string>('');
+  const [nineRouterApiKey, setNineRouterApiKey] = useState<string>('');
+  const [geminiApiKey, setGeminiApiKey] = useState<string>('');
+  const [configSaveSuccess, setConfigSaveSuccess] = useState<boolean>(false);
+
+  // Load config from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('gcm_ai_config');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.nineRouterUrl) setNineRouterUrl(parsed.nineRouterUrl);
+        if (parsed.nineRouterApiKey) setNineRouterApiKey(parsed.nineRouterApiKey);
+        if (parsed.geminiApiKey) setGeminiApiKey(parsed.geminiApiKey);
+      }
+    } catch (e) {
+      console.warn('Could not load ai config from localStorage', e);
+    }
+  }, []);
+
+  const handleSaveConfig = () => {
+    try {
+      localStorage.setItem('gcm_ai_config', JSON.stringify({
+        nineRouterUrl,
+        nineRouterApiKey,
+        geminiApiKey
+      }));
+      setConfigSaveSuccess(true);
+      setTimeout(() => {
+        setConfigSaveSuccess(false);
+        setIsConfigOpen(false);
+      }, 1200);
+    } catch (e) {
+      console.error('Error saving config', e);
+    }
+  };
 
   // Chat messages state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -170,11 +208,19 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(geminiApiKey ? { 'x-gemini-key': geminiApiKey } : {}),
+          ...(nineRouterUrl ? { 'x-9router-url': nineRouterUrl } : {}),
+          ...(nineRouterApiKey ? { 'x-9router-key': nineRouterApiKey } : {})
+        },
         body: JSON.stringify({
           prompt: textToSend.trim(),
           model: selectedModel,
           targetAgent,
+          clientApiKey: geminiApiKey || undefined,
+          clientNineRouterUrl: nineRouterUrl || undefined,
+          clientNineRouterKey: nineRouterApiKey || undefined,
           history: messages.slice(-6)
         })
       });
@@ -335,9 +381,53 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
               <span>AI Copilot (Flash 3.7)</span>
             </button>
           </div>
+          {/* Active Provider Badge */}
+          <div className="hidden md:flex items-center">
+            {nineRouterUrl ? (
+              <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                <span>9Router Gateway ({nineRouterUrl.replace(/^https?:\/\//, '').slice(0, 18)})</span>
+              </span>
+            ) : geminiApiKey ? (
+              <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                <span>Google Gemini Live (API Key)</span>
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Antigravity Engine</span>
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          {/* Docs Hub Link */}
+          <Link
+            href="/docs"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition border border-transparent hover:border-slate-700"
+            title="Xem Tài Liệu Dự Án (/docs)"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+            <span className="hidden sm:inline">Tài Liệu</span>
+          </Link>
+
+          {/* Settings & 9Router Config Button */}
+          <button
+            type="button"
+            onClick={() => setIsConfigOpen(true)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
+              nineRouterUrl || geminiApiKey
+                ? 'bg-purple-950/40 border-purple-800/80 text-purple-300 hover:bg-purple-900/50'
+                : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+            }`}
+            title="Cấu hình 9Router Gateway & API Key"
+          >
+            <Settings className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">Cấu Hình 9Router</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setIsMaximized(!isMaximized)}
@@ -675,6 +765,111 @@ export const AgentSquadChatTerminal: React.FC<AgentSquadChatTerminalProps> = ({
         </div>
       )}
 
+      {/* 3. MODAL: CẤU HÌNH 9ROUTER GATEWAY & API KEYS */}
+      {isConfigOpen && (
+        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 rounded-3xl animate-in fade-in">
+          <div className="bg-[#0B101E] border border-slate-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl space-y-4 text-slate-100">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-purple-950/60 border border-purple-800/80 flex items-center justify-center text-purple-400">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-100">Cấu Hình 9Router & Live API Keys</h3>
+                  <p className="text-[11px] text-slate-400">Kết nối Hub Gateway đa tác tử và cấp API Key để chạy Live Inference 100%</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfigOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              {/* 9Router URL */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-300">9Router Gateway Base URL</label>
+                  <button
+                    type="button"
+                    onClick={() => setNineRouterUrl('http://localhost:20128/v1')}
+                    className="text-[10.5px] text-purple-400 hover:underline font-mono"
+                  >
+                    Điền mặc định localhost:20128
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={nineRouterUrl}
+                  onChange={(e) => setNineRouterUrl(e.target.value)}
+                  placeholder="Ví dụ: http://localhost:20128/v1 hoặc https://router.yourdomain.com"
+                  className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-mono text-xs focus:border-purple-500 focus:outline-none"
+                />
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  Chạy lệnh <code className="text-purple-400 font-mono">npx 9router start</code> trên máy tính để khởi tạo Hub điều phối đa mô hình (Gemini, DeepSeek, Claude, GPT).
+                </p>
+              </div>
+
+              {/* 9Router API Key */}
+              <div className="space-y-1">
+                <label className="font-bold text-slate-300">9Router API Key (Tùy Chọn)</label>
+                <input
+                  type="password"
+                  value={nineRouterApiKey}
+                  onChange={(e) => setNineRouterApiKey(e.target.value)}
+                  placeholder="sk-9router... (để trống nếu dùng local không mật khẩu)"
+                  className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-mono text-xs focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Direct Gemini API Key */}
+              <div className="space-y-1 pt-1 border-t border-slate-800">
+                <label className="font-bold text-slate-300">Google Gemini 2.0 Flash API Key (Dự Phòng)</label>
+                <input
+                  type="password"
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="AIzaSy... (lưu an toàn trong trình duyệt)"
+                  className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-mono text-xs focus:border-blue-500 focus:outline-none"
+                />
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  Nếu không chạy 9Router, hệ thống sẽ gọi trực tiếp Google Gemini 2.0 Flash với API Key này.
+                </p>
+              </div>
+            </div>
+
+            {configSaveSuccess && (
+              <div className="p-2 rounded-xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Đã lưu cấu hình an toàn vào trình duyệt!</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsConfigOpen(false)}
+                className="px-3 py-1.5 rounded-xl border border-slate-700 text-slate-400 hover:text-slate-200 text-xs font-bold transition"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveConfig}
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition active:scale-95 flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Lưu & Kích Hoạt</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
