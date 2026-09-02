@@ -4,7 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { emitRealtimeUpdate } from '@/lib/data';
 
-const WORK_DIR = 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work\\Workflow';
+const WORK_DIR = process.env.WORKFLOW_ROOT || process.cwd();
 
 export async function POST(req: NextRequest) {
   try {

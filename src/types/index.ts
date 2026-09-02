@@ -184,3 +184,34 @@ export interface TechnicalDocGuide {
   updatedAt?: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  targetAgent?: string;
+  model?: string;
+  modelUsed?: string;
+  agentName?: string;
+  agentAvatar?: string;
+  isStreaming?: boolean;
+  thinking?: string;
+  toolCalls?: Array<{
+    name: string;
+    args: Record<string, any>;
+    result?: string;
+  }>;
+  dispatchedAgents?: string[];
+  actionLink?: {
+    label: string;
+    tab: 'WORKFLOW' | 'AGENTS' | 'QA_LAB' | 'SOLO_ARENA' | 'KEY_POOL';
+  };
+}
+
+export interface CLIExecutionResult {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  durationMs: number;
+}
+

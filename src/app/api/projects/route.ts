@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const WORK_DIR = 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work';
+const WORK_DIR = process.env.WORK_ROOT || (fs.existsSync('C:\\Users\\ADMIN\\OneDrive\\Documents\\Work') ? 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work' : process.cwd());
 
 export interface LocalProjectInfo {
   id: string;

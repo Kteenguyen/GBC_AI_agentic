@@ -104,8 +104,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Main Tab Navigation */}
         <nav className="flex items-center overflow-x-auto pb-1 lg:pb-0 gap-1 bg-[#111827]/80 p-1 rounded-lg border border-[#1E293B]/80 scrollbar-none max-w-full">
           {[
-            { id: 'workflow', label: '🔀 Sơ Đồ Visual Workflow', icon: GitFork },
-            { id: 'interactive', label: '⚡ Điều Phối Prompt & Browser Test', icon: Zap },
+            { id: 'workflow', label: 'Sơ Đồ Visual Workflow', icon: GitFork },
+            { id: 'interactive', label: 'Điều Phối Prompt & Browser Test', icon: Zap },
             { id: 'pipeline', label: 'DevOps & Squad Agents', icon: Layers },
             { id: 'qa', label: 'QA Lab 430px', icon: Smartphone },
             { id: 'trending', label: 'GitHub Trending & Solo', icon: Sparkles },

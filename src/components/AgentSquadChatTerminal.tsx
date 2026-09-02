@@ -28,8 +28,7 @@ import {
   Key,
   BookOpen
 } from 'lucide-react';
-import { ChatMessage } from '@/app/api/chat/route';
-import { CLIExecutionResult } from '@/app/api/cli/route';
+import { ChatMessage, CLIExecutionResult } from '@/types';
 
 interface AgentSquadChatTerminalProps {
   isOpen: boolean;
