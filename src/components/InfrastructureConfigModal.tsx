@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Play
 } from 'lucide-react';
+import { emitRealtimeUpdate } from '@/lib/data';
 
 export interface TabAuditResult {
   isConfigured: boolean;
@@ -138,6 +139,14 @@ export function auditTabConfig(tabKey: string, config: any): TabAuditResult {
         totalFields: fields.length,
         configuredFields: fields.length - missing.length,
         missingFields: missing
+      };
+    }
+    case 'WEBHOOK': {
+      return {
+        isConfigured: true,
+        totalFields: 1,
+        configuredFields: 1,
+        missingFields: []
       };
     }
     default:
@@ -322,7 +331,7 @@ export default function InfrastructureConfigModal({
     return true;
   };
 
-  const tabKeys = ['WORKSPACE', 'GIT', 'CI', 'SECURITY', 'DOCKER', 'K8S', 'TELEMETRY'];
+  const tabKeys = ['WORKSPACE', 'GIT', 'CI', 'SECURITY', 'DOCKER', 'K8S', 'TELEMETRY', 'WEBHOOK'];
   const completedTabsCount = config ? tabKeys.filter(k => auditTabConfig(k, config).isConfigured).length : 0;
 
   return (
@@ -339,11 +348,11 @@ export default function InfrastructureConfigModal({
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold text-slate-100">Trung Tâm Cấu Hình Hạ Tầng</h2>
                 <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
-                  completedTabsCount === 7 
+                  completedTabsCount === 8 
                     ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40' 
                     : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
                 }`}>
-                  {completedTabsCount === 7 ? '7/7 ĐÃ CẤU HÌNH' : `${completedTabsCount}/7 ĐÃ CẤU HÌNH`}
+                  {completedTabsCount === 8 ? '8/8 ĐÃ CẤU HÌNH' : `${completedTabsCount}/8 ĐÃ CẤU HÌNH`}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
@@ -1383,6 +1392,13 @@ export default function InfrastructureConfigModal({
                                 })
                               });
                               const data = await res.json();
+                              if (data.success) {
+                                emitRealtimeUpdate('gcm_pipeline_triggered', {
+                                  source: 'WEBHOOK_CONFIG_TEST',
+                                  timestamp: new Date().toISOString(),
+                                  commit: { id: '8eb6922', message: 'Manual test from Webhook Config Tab' }
+                                });
+                              }
                               setTestResults(prev => ({
                                 ...prev,
                                 'WEBHOOK': {

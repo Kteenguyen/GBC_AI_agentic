@@ -1710,12 +1710,20 @@ export default function WorkflowPage() {
 
                   {/* Connecting line */}
                   <div className="flex items-center gap-1 text-slate-500">
-                    <div className={`h-[2px] w-14 relative ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                      <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap ${isLight ? 'text-blue-700 font-bold' : 'text-cyan-400'}`}>
+                    <div className={`h-[2px] w-14 relative transition-all ${
+                      isRunningAll
+                        ? (isLight ? 'bg-blue-600 shadow-sm shadow-blue-500/50 animate-pulse' : 'bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse')
+                        : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                    }`}>
+                      <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'text-blue-700 font-bold' : 'text-cyan-400 font-bold') 
+                          : (isLight ? 'text-slate-600' : 'text-slate-400')
+                      }`}>
                         push code
                       </span>
                     </div>
-                    <span className={`text-xs font-bold ${isLight ? 'text-blue-600' : 'text-cyan-400'}`}>▶</span>
+                    <span className={`text-xs font-bold transition-all ${isRunningAll ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'}`}>▶</span>
                   </div>
 
                   {/* GitHub Source Repo */}
@@ -1746,15 +1754,6 @@ export default function WorkflowPage() {
                     </span>
                     <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>source repo</span>
                     <WorkflowNodePortHandle nodeId="node-github-src" onStartConnect={handleStartConnect} onFinishConnect={handleFinishConnect} isConnecting={!!activeConnectingPort} theme={theme} />
-                  </div>
-
-                  <div className="flex items-center gap-1 text-slate-500">
-                    <div className={`h-[2px] w-16 relative ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                      <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                        pull code
-                      </span>
-                    </div>
-                    <span className="text-slate-400 text-xs">▶</span>
                   </div>
                 </div>
 
@@ -1821,11 +1820,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-2">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-blue-600 shadow-sm shadow-blue-500/50 animate-pulse' : 'bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-blue-700 font-bold' : 'text-cyan-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           dependency
                         </span>
-                        <span className="text-slate-400 text-xs">▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
@@ -1855,11 +1862,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-2">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-blue-600 shadow-sm shadow-blue-500/50 animate-pulse' : 'bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-blue-700 font-bold' : 'text-cyan-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           quality gate
                         </span>
-                        <span className="text-slate-400 text-xs">▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
@@ -1919,9 +1934,17 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex items-center gap-1 text-slate-500">
-                      <span className="text-slate-400 text-xs">◀</span>
-                      <div className={`h-[2px] w-28 relative ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'}`}>◀</span>
+                      <div className={`h-[2px] w-28 relative transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-blue-600 shadow-sm shadow-blue-500/50 animate-pulse' : 'bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-blue-700 font-bold' : 'text-cyan-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           docker build & push
                         </span>
                       </div>
@@ -2059,11 +2082,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-purple-600 shadow-sm shadow-purple-500/50 animate-pulse' : 'bg-purple-400 shadow-sm shadow-purple-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-purple-700 font-bold' : 'text-purple-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           update image
                         </span>
-                        <span className="text-slate-400 text-xs">▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-purple-600' : 'text-purple-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
@@ -2093,11 +2124,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-purple-600 shadow-sm shadow-purple-500/50 animate-pulse' : 'bg-purple-400 shadow-sm shadow-purple-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-purple-700 font-bold' : 'text-purple-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           pull config
                         </span>
-                        <span className="text-slate-400 text-xs">▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-purple-600' : 'text-purple-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
@@ -2129,11 +2168,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-slate-300' : 'bg-slate-700'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap ${isLight ? 'text-blue-700 font-bold' : 'text-cyan-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-blue-600 shadow-sm shadow-blue-500/50 animate-pulse' : 'bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse') 
+                          : (isLight ? 'bg-slate-300' : 'bg-slate-700')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-blue-700 font-bold' : 'text-cyan-400 font-bold') 
+                            : (isLight ? 'text-slate-600' : 'text-slate-400')
+                        }`}>
                           deploy on k8s
                         </span>
-                        <span className={`text-xs ${isLight ? 'text-blue-600 font-bold' : 'text-cyan-400'}`}>▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-blue-600' : 'text-cyan-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
@@ -2165,11 +2212,19 @@ export default function WorkflowPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center text-slate-500 relative px-1">
-                      <div className={`h-[2px] w-full relative flex items-center justify-end ${isLight ? 'bg-emerald-300' : 'bg-emerald-700/60'}`}>
-                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap ${isLight ? 'text-emerald-700 font-bold' : 'text-emerald-400'}`}>
+                      <div className={`h-[2px] w-full relative flex items-center justify-end transition-all ${
+                        isRunningAll 
+                          ? (isLight ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse' : 'bg-emerald-400 shadow-sm shadow-emerald-400/50 animate-pulse') 
+                          : (isLight ? 'bg-emerald-300' : 'bg-emerald-700/60')
+                      }`}>
+                        <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-[8.5px] font-mono whitespace-nowrap transition-all ${
+                          isRunningAll 
+                            ? (isLight ? 'text-emerald-700 font-bold' : 'text-emerald-400 font-bold') 
+                            : (isLight ? 'text-emerald-700' : 'text-emerald-400')
+                        }`}>
                           truy cập
                         </span>
-                        <span className={`text-xs ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>▶</span>
+                        <span className={`text-xs font-bold ${isRunningAll ? (isLight ? 'text-emerald-600' : 'text-emerald-400') : 'text-slate-400'}`}>▶</span>
                       </div>
                     </div>
 
