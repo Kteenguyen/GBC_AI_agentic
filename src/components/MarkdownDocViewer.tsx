@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { 
@@ -235,12 +235,16 @@ export function MarkdownDocViewer({ content, isLight }: MarkdownDocViewerProps) 
       } else if (token.startsWith("[") && token.includes("](")) {
         const titleMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
         if (titleMatch) {
+          const rawHref = titleMatch[2].trim();
+          const isSafeHref = /^(https?:\/\/|mailto:|tel:|#|\/)/i.test(rawHref);
+          const safeHref = isSafeHref ? rawHref : "#";
+
           parts.push(
             <a 
               key={keyIdx++} 
-              href={titleMatch[2]} 
-              target="_blank" 
-              rel="noreferrer" 
+              href={safeHref} 
+              target={safeHref.startsWith("http") ? "_blank" : "_self"}
+              rel="noopener noreferrer" 
               className={`underline underline-offset-2 font-bold ${
                 isLight ? 'text-blue-600 hover:text-blue-800' : 'text-cyan-400 hover:text-cyan-300'
               }`}

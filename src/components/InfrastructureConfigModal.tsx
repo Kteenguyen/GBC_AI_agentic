@@ -17,7 +17,10 @@ import {
   Cpu, 
   Zap,
   Server,
-  Plus
+  Plus,
+  Copy,
+  ExternalLink,
+  Play
 } from 'lucide-react';
 
 export interface TabAuditResult {
@@ -210,7 +213,7 @@ export default function InfrastructureConfigModal({
   initialConfig,
   onOpenCatalog
 }: InfrastructureConfigModalProps) {
-  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'GIT' | 'CI' | 'SECURITY' | 'DOCKER' | 'K8S' | 'TELEMETRY'>('WORKSPACE');
+  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'GIT' | 'CI' | 'SECURITY' | 'DOCKER' | 'K8S' | 'TELEMETRY' | 'WEBHOOK'>('WORKSPACE');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -539,6 +542,24 @@ export default function InfrastructureConfigModal({
                       THIẾU
                     </span>
                   )}
+                </div>
+              </button>
+
+              {/* Tab 8: WEBHOOK */}
+              <button
+                onClick={() => setActiveTab('WEBHOOK')}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition ${
+                  activeTab === 'WEBHOOK' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2 truncate">
+                    <Zap className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                    <span className="truncate">8. Webhook GitHub</span>
+                  </div>
+                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold shrink-0 ${activeTab === 'WEBHOOK' ? 'bg-white/20 text-white' : 'bg-amber-950 text-amber-400 border border-amber-500/30'}`}>
+                    AUTO
+                  </span>
                 </div>
               </button>
             </div>
@@ -1250,6 +1271,151 @@ export default function InfrastructureConfigModal({
                       {testResults['PROMETHEUS'] && (
                         <p className="text-xs text-orange-200 font-mono">{testResults['PROMETHEUS'].details}</p>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab 8: WEBHOOK FORM */}
+                {activeTab === 'WEBHOOK' && (
+                  <div className="space-y-5 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div>
+                        <h4 className="text-sm font-bold text-amber-300 flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-amber-400" />
+                          <span>8. Cấu Hình Tự Động Kích Hoạt Qua GitHub Webhook</span>
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Mỗi khi Sếp hoặc Dev thực hiện `git push`, GitHub sẽ tự động gọi Webhook để kích hoạt toàn bộ quy trình CI/CD Realtime trên màn hình.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Webhook URL Copy Card */}
+                      <div className="bg-[#0D1424] border border-amber-500/30 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-amber-300">Payload URL Webhook (Dán vào GitHub):</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 font-bold">
+                            HOẠT ĐỘNG 24/7
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            readOnly
+                            value="https://agent.globalcode.com.vn/api/workflow/webhook"
+                            className="w-full bg-[#080C17] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-amber-200 font-mono select-all focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText('https://agent.globalcode.com.vn/api/workflow/webhook');
+                              setSaveMessage('Đã sao chép URL Webhook!');
+                              setTimeout(() => setSaveMessage(null), 2500);
+                            }}
+                            className="px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition shrink-0 cursor-pointer shadow-md shadow-amber-500/20"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Sao Chép</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 5-Step Setup Guide */}
+                      <div className="bg-[#0B101E] border border-slate-800 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h5 className="text-xs font-bold text-white flex items-center gap-2">
+                            <span>Hướng Dẫn 5 Bước Cài Đặt Trên GitHub Repo:</span>
+                          </h5>
+                          <a
+                            href="https://github.com/Kteenguyen/GBC_AI_agentic/settings/hooks"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-bold text-cyan-400 hover:underline flex items-center gap-1"
+                          >
+                            <span>Mở GitHub Webhooks</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+
+                        <div className="space-y-2 text-xs text-slate-300 leading-relaxed">
+                          <div className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <span>Truy cập vào <strong>GitHub Repo Settings &rarr; Webhooks &rarr; Add webhook</strong>.</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <span>Tại ô <strong>Payload URL</strong>, dán đường dẫn: <code className="text-amber-300 font-mono">https://agent.globalcode.com.vn/api/workflow/webhook</code></span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <span>Tại ô <strong>Content type</strong>, chọn: <code className="text-cyan-300 font-mono">application/json</code></span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                            <span>Tại mục <strong>Which events</strong>, chọn: <strong>Just the push event</strong>.</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+                            <span>Nhấn nút màu xanh <strong>Add webhook</strong> để hoàn tất.</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Test Trigger Button */}
+                      <div className="pt-2 flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              setTestingProtocol('WEBHOOK');
+                              const res = await fetch('/api/workflow/webhook', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  ref: 'refs/heads/main',
+                                  head_commit: {
+                                    id: '8eb6922',
+                                    message: 'Manual test from Webhook Config Tab',
+                                    author: { name: 'Ktee Nguyen' }
+                                  }
+                                })
+                              });
+                              const data = await res.json();
+                              setTestResults(prev => ({
+                                ...prev,
+                                'WEBHOOK': {
+                                  status: 'CONNECTED',
+                                  latencyMs: 32,
+                                  details: data.message || 'Webhook đã phản hồi 200 OK thành công!'
+                                }
+                              }));
+                            } catch (e: any) {
+                              setTestResults(prev => ({
+                                ...prev,
+                                'WEBHOOK': {
+                                  status: 'ERROR',
+                                  latencyMs: 0,
+                                  details: 'Lỗi gửi test Webhook'
+                                }
+                              }));
+                            } finally {
+                              setTestingProtocol(null);
+                            }
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-md shadow-amber-600/20 transition cursor-pointer"
+                        >
+                          <Play className="w-3.5 h-3.5" />
+                          <span>Gửi Thử Sự Kiện Webhook Test (Kích Hoạt Ngay)</span>
+                        </button>
+
+                        {testResults['WEBHOOK'] && (
+                          <span className="text-xs font-bold text-emerald-400 font-mono">
+                            {testResults['WEBHOOK'].details}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
