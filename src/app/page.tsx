@@ -22,7 +22,7 @@ export default function WorkflowPage() {
 
   return (
     <div className={`min-h-screen font-sans select-none flex flex-col justify-between transition-colors duration-200 ${
-      engine.isLight ? 'bg-[#F7F5F0] text-slate-800' : 'bg-[#070B14] text-slate-100'
+      engine.isLight ? 'bg-[#F8FAFC] text-slate-900' : 'bg-[#080C14] text-slate-100'
     }`}>
       {/* 1. TOP BAR CONTROLS & MAIN TAB SWITCHER */}
       <WorkflowHeaderControls
@@ -54,13 +54,21 @@ export default function WorkflowPage() {
         {engine.activeMainTab === 'WORKFLOW' && (
           <div className="space-y-6">
             
-            {/* Mobile Touch-First Step-by-Step Timeline (Screens < 768px) */}
+            {/* Mobile Touch-First Step-by-Step Command Center (Screens < 768px) */}
             <MobileWorkflowTimeline
               nodes={engine.nodes}
               selectedNodeId={engine.selectedNodeId}
               onSelectNode={engine.setSelectedNodeId}
               renderLogo={renderOfficialLogo}
               theme={engine.theme}
+              isRunningAll={engine.isRunningAll}
+              onPushCodeRunAll={engine.handleTriggerFullPipeline}
+              onStepForward={engine.handleStepForward}
+              onReset={engine.handleReset}
+              onOpenChat={() => engine.setIsChatOpen(true)}
+              selectedProject={engine.selectedProject}
+              onExecuteNodeAction={engine.handleExecuteNodeAction}
+              isExecutingNodeAction={engine.isExecutingNodeAction}
             />
 
             {/* Desktop Visual Canvas & Left Collapsible Actor Toolbox Container */}
@@ -109,16 +117,18 @@ export default function WorkflowPage() {
                   onRemoveDynamicNode={engine.handleRemoveDynamicNode}
                 />
 
-                {/* Operational Node Inspector */}
-                <WorkflowOperationalInspector
-                  selectedNode={engine.selectedNode}
-                  isLight={engine.isLight}
-                  renderLogo={renderOfficialLogo}
-                  onOpenNodeConfig={engine.handleOpenNodeConfig}
-                  onExecuteNodeAction={engine.handleExecuteNodeAction}
-                  isExecutingNodeAction={engine.isExecutingNodeAction}
-                  onInspectArtifact={engine.handleInspectArtifact}
-                />
+                {/* Operational Node Inspector (Desktop >= md) */}
+                <div className="hidden md:block">
+                  <WorkflowOperationalInspector
+                    selectedNode={engine.selectedNode}
+                    isLight={engine.isLight}
+                    renderLogo={renderOfficialLogo}
+                    onOpenNodeConfig={engine.handleOpenNodeConfig}
+                    onExecuteNodeAction={engine.handleExecuteNodeAction}
+                    isExecutingNodeAction={engine.isExecutingNodeAction}
+                    onInspectArtifact={engine.handleInspectArtifact}
+                  />
+                </div>
               </div>
             </div>
           </div>

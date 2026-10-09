@@ -2,16 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '../styles/workflow-design-tokens.css';
+@import '../styles/workflow-board.css';
+@import '../styles/workflow-nodes.css';
+@import '../styles/workflow-header.css';
+@import '../styles/workflow-sidebar.css';
+@import '../styles/ux-mobile.css';
+
 :root {
-  /* LIGHT THEME (BEIGE / CREAM AESTHETIC - NỀN BE SANG TRỌNG) */
-  --background: #F7F5F0;
+  /* LIGHT THEME (CRISP APPLE / VERCEL PRO STUDIO - CLEAN SLATE & PURE WHITE) */
+  --background: #F8FAFC;
   --foreground: #0F172A;
   --card-bg: #FFFFFF;
-  --card-subtle: #FDFBF7;
-  --card-hover: #F3EFE6;
-  --border-color: #E2DDD5;
+  --card-subtle: #F1F5F9;
+  --card-hover: #E2E8F0;
+  --border-color: #E2E8F0;
   --border-hover: #CBD5E1;
-  --header-bg: #EFECE6;
+  --header-bg: #FFFFFF;
   --panel-bg: #FFFFFF;
   
   --accent-cyan: #0284C7;
@@ -33,16 +40,16 @@
 }
 
 .dark {
-  /* DARK THEME */
-  --background: #070B14;
-  --foreground: #F1F5F9;
-  --card-bg: #090E1A;
-  --card-subtle: #0B101E;
-  --card-hover: #111827;
-  --border-color: #1E293B;
-  --border-hover: #334155;
-  --header-bg: #0B0F19;
-  --panel-bg: #090E1A;
+  /* DARK THEME (CYBER-OBSIDIAN DEEP NAVY - DEFAULT DEVSECOPS) */
+  --background: #080C14;
+  --foreground: #F8FAFC;
+  --card-bg: #0D1629;
+  --card-subtle: #131F35;
+  --card-hover: #1A2946;
+  --border-color: #1E2B45;
+  --border-hover: #2A3C60;
+  --header-bg: #0B111E;
+  --panel-bg: #0D1629;
 
   --accent-cyan: #06B6D4;
   --accent-blue: #3B82F6;

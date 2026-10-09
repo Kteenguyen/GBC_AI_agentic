@@ -15,7 +15,9 @@ import {
   Plus, 
   BookOpen, 
   Settings,
-  Key
+  Key,
+  ShieldCheck,
+  Cpu
 } from 'lucide-react';
 import ProjectDropdown from '@/components/ProjectDropdown';
 import { LocalProject } from '@/types/workflow';
@@ -64,245 +66,193 @@ export const WorkflowHeaderControls: React.FC<WorkflowHeaderControlsProps> = ({
   onOpenConfig
 }) => {
   return (
-    <div className={`w-full px-2 sm:px-4 py-2 sticky top-0 z-50 border-b transition-colors ${
-      isLight ? 'bg-[#EFECE6] border-[#E2DDD5]' : 'bg-[#0B0F19] border-[#1E293B]'
-    }`}>
-      {/* Row 1: Main Tabs and Quick Actions */}
-      <div className="max-w-[1850px] w-full mx-auto flex items-center justify-between gap-1.5 sm:gap-2 overflow-x-auto lg:overflow-x-visible no-scrollbar flex-nowrap">
-        {/* Group 1: 5 Main Navigation Tabs */}
-        <div className={`flex items-center gap-0.5 sm:gap-1 p-0.5 rounded-lg border shrink-0 transition ${
-          isLight ? 'bg-[#FAF8F5] border-[#E2DDD5]' : 'bg-[#090D18] border-slate-800'
-        }`}>
-          <button
-            type="button"
-            onClick={() => setActiveMainTab('WORKFLOW')}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
-              activeMainTab === 'WORKFLOW'
-                ? (isLight ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm shadow-blue-600/30')
-                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
-            }`}
-            style={{ height: '30px' }}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sơ Đồ Visual</span>
-            <span className="sm:hidden">Sơ Đồ</span>
-          </button>
+    <header className="workflow-header-bar">
+      {/* Row 1: Primary Dock and Navigation */}
+      <div className="max-w-[1850px] w-full mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar flex-nowrap py-1">
+        
+        {/* Left: Brand Identity & Mode Tabs */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 pr-2 border-r border-slate-700/40">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-cyan-500/20 text-white">
+              <Cpu className="w-4 h-4" />
+            </div>
+            <div className="hidden xl:block">
+              <h1 className="text-xs font-black tracking-wider text-slate-900 dark:text-white uppercase leading-none">
+                DevSecOps IDP
+              </h1>
+              <span className="text-[9.5px] font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                Control Plane
+              </span>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveMainTab('AGENTS')}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
-              activeMainTab === 'AGENTS'
-                ? (isLight ? 'bg-blue-700 text-white shadow-sm' : 'bg-cyan-600 text-white shadow-sm shadow-cyan-600/30')
-                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
-            }`}
-            style={{ height: '30px' }}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>13 Agents</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping ml-0.5" />
-          </button>
+          {/* 5 Main Navigation Tabs */}
+          <nav className="nav-tab-container">
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('WORKFLOW')}
+              className={`nav-tab-item ${activeMainTab === 'WORKFLOW' ? 'is-active' : ''}`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sơ Đồ Visual</span>
+              <span className="sm:hidden">Sơ Đồ</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveMainTab('QA_LAB')}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
-              activeMainTab === 'QA_LAB'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
-            }`}
-            style={{ height: '30px' }}
-          >
-            <FlaskConical className="w-3.5 h-3.5" />
-            <span>QA Lab</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('AGENTS')}
+              className={`nav-tab-item ${activeMainTab === 'AGENTS' ? 'is-active' : ''}`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>13 Agents</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveMainTab('SOLO_ARENA')}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
-              activeMainTab === 'SOLO_ARENA'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
-            }`}
-            style={{ height: '30px' }}
-          >
-            <Swords className="w-3.5 h-3.5" />
-            <span>Solo 1v1</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('QA_LAB')}
+              className={`nav-tab-item ${activeMainTab === 'QA_LAB' ? 'is-active' : ''}`}
+            >
+              <FlaskConical className="w-3.5 h-3.5" />
+              <span>QA Lab</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveMainTab('KEY_POOL')}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-[11.5px] font-bold transition-all whitespace-nowrap ${
-              activeMainTab === 'KEY_POOL'
-                ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
-                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60')
-            }`}
-            style={{ height: '30px' }}
-          >
-            <Key className="w-3.5 h-3.5" />
-            <span>Key Pool</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('SOLO_ARENA')}
+              className={`nav-tab-item ${activeMainTab === 'SOLO_ARENA' ? 'is-active' : ''}`}
+            >
+              <Swords className="w-3.5 h-3.5" />
+              <span>Solo 1v1</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveMainTab('KEY_POOL')}
+              className={`nav-tab-item ${activeMainTab === 'KEY_POOL' ? 'is-active' : ''}`}
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span>Key Pool</span>
+            </button>
+          </nav>
         </div>
 
-        {/* Group 2: Pipeline Action Controls */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        {/* Center: High-Impact Execution Dock (Desktop >= md, Mobile uses Sticky Bottom Thumb Dock) */}
+        <div className="floating-action-capsule shrink-0 hidden md:inline-flex">
           <button
             type="button"
             onClick={onPushCodeRunAll}
             disabled={isRunningAll}
-            className={`flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-[11px] sm:text-[11.5px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap ${
-              isRunningAll
-                ? 'bg-slate-500 cursor-not-allowed opacity-75'
-                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/25 border border-emerald-400/40'
-            }`}
-            style={{ height: '32px' }}
-            title="Kích hoạt tự động đẩy commit và chạy toàn bộ quy trình CI/CD"
+            className={`btn-primary-run ${isRunningAll ? 'is-running' : ''}`}
+            title="Kích hoạt tự động đẩy commit và chạy toàn bộ quy trình qua 3 cổng bảo mật"
           >
             <Play className={`w-3.5 h-3.5 fill-current ${isRunningAll ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Chạy Full Pipeline</span>
-            <span className="sm:hidden">Chạy</span>
+            <span>{isRunningAll ? 'Đang Thực Thi...' : 'Chạy Pipeline (Push Code)'}</span>
           </button>
 
           <button
             type="button"
             onClick={onStepForward}
             disabled={isRunningAll}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-[11.5px] font-bold transition-all border whitespace-nowrap ${
-              isLight 
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
-                : 'bg-[#1E293B] hover:bg-slate-700 text-slate-200 border-slate-700'
-            }`}
-            style={{ height: '32px' }}
-            title="Chuyển sang Node tiếp theo"
+            className="btn-header-secondary"
+            title="Chuyển sang Node kế tiếp trong chuỗi"
           >
             <SkipForward className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Tiếp tục</span>
+            <span className="hidden md:inline">Từng Bước</span>
           </button>
 
           <button
             type="button"
             onClick={onReset}
-            className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-[11.5px] font-bold transition-all border whitespace-nowrap ${
-              isLight 
-                ? 'bg-[#FAF8F5] hover:bg-slate-200 text-slate-600 border-[#E2DDD5]'
-                : 'bg-[#0F172A] hover:bg-slate-800 text-slate-400 hover:text-white border-slate-800'
-            }`}
-            style={{ height: '32px' }}
-            title="Dừng và đặt lại toàn bộ trạng thái Pipeline về ban đầu"
+            className="btn-header-secondary"
+            title="Đặt lại toàn bộ trạng thái Pipeline về ban đầu"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span className="hidden sm:inline">Dừng / Reset</span>
-            <span className="sm:hidden">Reset</span>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Đặt Lại</span>
           </button>
         </div>
 
-        {/* Group 3: Utility Controls & Modals */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 text-xs">
-          {/* AI Prompt Copilot Terminal Button */}
+        {/* Right: AI Copilot, Theme Toggle & System Config */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* AI Prompt Terminal Button */}
           <button
             type="button"
             onClick={onOpenChat}
-            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border border-blue-400/40 shadow-sm transition cursor-pointer active:scale-95 whitespace-nowrap"
-            style={{ height: '30px' }}
+            className="btn-primary-run from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border-purple-400/40"
             title="Mở AI Prompt Terminal (Ctrl + K)"
           >
-            <Sparkles className="w-3 h-3 animate-pulse" />
-            <span>Prompt AI</span>
-            <span className="hidden xl:inline text-[9px] font-mono bg-white/20 px-1 rounded">Ctrl+K</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <span>Prompt AI Squad</span>
+            <span className="hidden xl:inline text-[9px] font-mono bg-white/20 px-1 rounded ml-1">Ctrl+K</span>
           </button>
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle (Dark / Light) */}
           <button
             type="button"
             onClick={() => setTheme(curr => curr === 'light' ? 'dark' : 'light')}
-            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition-all border shadow-xs cursor-pointer whitespace-nowrap ${
-              isLight
-                ? 'bg-[#FFFFFF] hover:bg-[#FAF8F5] text-amber-800 border-[#E2DDD5]'
-                : 'bg-[#0F172A] hover:bg-slate-800 text-amber-300 border-slate-700'
-            }`}
-            style={{ height: '30px' }}
+            className="btn-header-secondary"
             title="Chuyển đổi giao diện Sáng / Tối"
           >
             {isLight ? (
               <>
-                <Sun className="w-3 h-3 text-amber-600 fill-amber-500/30" />
-                <span className="hidden md:inline">Sáng</span>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden lg:inline">Sáng</span>
               </>
             ) : (
               <>
-                <Moon className="w-3 h-3 text-cyan-300" />
-                <span className="hidden md:inline">Tối</span>
+                <Moon className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden lg:inline">Tối</span>
               </>
             )}
           </button>
 
-          {/* Dynamic Open Source Catalog */}
+          {/* Open Source Tool Catalog */}
           <button
             type="button"
             onClick={onOpenCatalog}
-            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold border border-blue-500/40 shadow-xs transition cursor-pointer whitespace-nowrap"
-            style={{ height: '30px' }}
+            className="btn-header-secondary"
+            title="Mở Kho Actor DevOps Mở Rộng"
           >
-            <Plus className="w-3 h-3" />
-            <span className="hidden xl:inline">Kho Open Source</span>
-            <span className="xl:hidden">Kho OS</span>
+            <Plus className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
+            <span className="hidden xl:inline">Kho Actor</span>
           </button>
 
           {/* Reset Connection Edges */}
           <button
             type="button"
             onClick={onResetEdges}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
-              isLight 
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-[#E2DDD5]'
-                : 'bg-[#0F172A] hover:bg-slate-800 text-slate-300 border-slate-700'
-            }`}
-            style={{ height: '30px' }}
+            className="btn-header-secondary"
             title="Khôi phục toàn bộ đường nối mũi tên mặc định"
           >
-            <RotateCcw className="w-3 h-3 text-slate-500" />
-            <span className="hidden xl:inline">Dây Nối ({workflowEdgesCount})</span>
-            <span className="xl:hidden">Dây ({workflowEdgesCount})</span>
+            <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden xl:inline">Dây ({workflowEdgesCount})</span>
           </button>
 
-          {/* Documentation Guides */}
+          {/* Documentation Link */}
           <a
             href="/docs"
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-[11.5px] font-bold transition cursor-pointer border whitespace-nowrap ${
-              isLight 
-                ? 'bg-white hover:bg-slate-50 text-blue-700 border-[#E2DDD5]'
-                : 'bg-[#0F172A] hover:bg-slate-800 text-cyan-400 border-slate-700'
-            }`}
-            style={{ height: '30px' }}
-            title="Xem Trang Tài Liệu (/docs)"
+            className="btn-header-secondary text-cyan-600 dark:text-cyan-400"
+            title="Tài liệu kiến trúc"
           >
-            <BookOpen className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
-            <span>Docs</span>
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Docs</span>
           </a>
 
-          {/* Infrastructure Config Gear Button */}
+          {/* Infrastructure Config Button */}
           <button
             type="button"
             onClick={onOpenConfig}
             title="Cấu Hình Hạ Tầng & API Tokens"
             aria-label="Cấu Hình Hạ Tầng"
-            className={`w-[30px] h-[30px] rounded-lg transition cursor-pointer border shadow-xs flex items-center justify-center group shrink-0 ${
-              isLight 
-                ? 'bg-white hover:bg-slate-100 text-slate-700 border-[#E2DDD5] hover:border-blue-400 hover:text-blue-600'
-                : 'bg-[#0F172A] hover:bg-slate-800 text-slate-200 border-slate-700 hover:border-cyan-400 hover:text-cyan-400'
-            }`}
+            className="btn-header-secondary px-2"
           >
-            <Settings className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:rotate-90 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-transform duration-300" />
+            <Settings className="w-3.5 h-3.5 text-slate-400 hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
       </div>
 
-      {/* Row 2: Real Project Selector & Branch */}
-      <div className={`max-w-[1850px] mx-auto flex flex-wrap items-center justify-between gap-3 pt-1 border-t text-xs ${
-        isLight ? 'border-[#E2DDD5]' : 'border-slate-800/80'
-      }`}>
+      {/* Row 2: Project Context & Realtime Event Bus Status */}
+      <div className="max-w-[1850px] mx-auto flex flex-wrap items-center justify-between gap-3 pt-1.5 border-t border-slate-700/20 dark:border-slate-800 text-xs">
         <div className="flex items-center gap-3 flex-wrap">
           <ProjectDropdown
             projects={localProjects}
@@ -315,29 +265,23 @@ export const WorkflowHeaderControls: React.FC<WorkflowHeaderControlsProps> = ({
 
           {selectedProject && (
             <div className="flex items-center gap-2 font-mono">
-              <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Git User:</span>
-              <span className={`px-2 py-0.5 rounded border font-bold ${
-                isLight ? 'bg-white border-[#E2DDD5] text-purple-700' : 'bg-[#0E1526] border-slate-800 text-purple-300'
-              }`}>
+              <span className="text-slate-500 dark:text-slate-400">Git User:</span>
+              <span className="px-2 py-0.5 rounded-md font-bold bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-purple-600 dark:text-purple-300">
                 {selectedProject.gitUserName}
               </span>
-              <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Branch:</span>
-              <span className={`px-2 py-0.5 rounded border font-bold ${
-                isLight ? 'bg-white border-[#E2DDD5] text-emerald-700' : 'bg-[#0E1526] border-slate-800 text-emerald-400'
-              }`}>
+              <span className="text-slate-500 dark:text-slate-400">Branch:</span>
+              <span className="px-2 py-0.5 rounded-md font-bold bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-400">
                 {selectedProject.branch}
               </span>
             </div>
           )}
         </div>
 
-        <div className={`flex items-center gap-2 font-mono text-[11px] ${
-          isLight ? 'text-slate-600' : 'text-slate-400'
-        }`}>
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+        <div className="realtime-bus-badge">
+          <span className="realtime-pulse-dot" />
           <span>REALTIME EVENT BUS: 0MS SYNCHRONIZED</span>
         </div>
       </div>
-    </div>
+    </header>
   );
 };

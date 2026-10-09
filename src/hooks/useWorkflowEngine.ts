@@ -51,15 +51,15 @@ export const EXECUTION_ORDER_FULL = [
 ];
 
 export function useWorkflowEngine() {
-  // Theme State: 'light' (Beige Warm Theme) vs 'dark'
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  // Theme State: 'dark' (Cyber-Obsidian IDP) vs 'light' (Crisp Pro Studio)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     const saved = localStorage.getItem('app_theme') as 'light' | 'dark';
     if (saved) {
       setTheme(saved);
     } else {
-      setTheme('light');
+      setTheme('dark');
     }
   }, []);
 

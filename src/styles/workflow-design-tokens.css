@@ -1,0 +1,88 @@
+/* ==============================================================================
+   DEVSECOPS IDP DESIGN TOKENS - DEDICATED ARCHITECTURE
+   Modern Cyber-Obsidian (Dark Default) & Crisp Pro Studio (Light)
+   ============================================================================== */
+
+:root {
+  /* LIGHT THEME (CRISP APPLE / VERCEL PRO STUDIO - SLATE & SNOW WHITE) */
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F1F5F9;
+  --bg-surface-hover: #E2E8F0;
+  --bg-canvas: #FAFAFC;
+  --bg-stage-ci: rgba(241, 245, 249, 0.75);
+  --bg-stage-cd: rgba(245, 243, 255, 0.6);
+  
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-strong: #94A3B8;
+  --border-focus: #2563EB;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+  
+  /* Brand Accents */
+  --color-cyan: #0284C7;
+  --color-blue: #2563EB;
+  --color-violet: #7C3AED;
+  --color-emerald: #059669;
+  --color-amber: #D97706;
+  --color-rose: #E11D48;
+  
+  /* Glow & Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-node-hover: 0 12px 28px -6px rgba(37, 99, 235, 0.15);
+  --glow-active: 0 0 15px rgba(37, 99, 235, 0.25);
+  
+  /* Canvas Grid */
+  --grid-dot-color: rgba(148, 163, 184, 0.25);
+  
+  /* Typography */
+  --font-btn: 12px;
+  --font-label: 11px;
+  --font-body: 13px;
+  --font-code: 12px;
+}
+
+.dark {
+  /* DARK THEME (CYBER-OBSIDIAN DEEP NAVY - DEFAULT DEVSECOPS EXPERIENCE) */
+  --bg-app: #080C14;
+  --bg-surface: #0E1626;
+  --bg-surface-elevated: #131F35;
+  --bg-surface-hover: #1A2946;
+  --bg-canvas: #090E1A;
+  --bg-stage-ci: rgba(14, 28, 54, 0.55);
+  --bg-stage-cd: rgba(30, 20, 54, 0.55);
+  
+  --border-subtle: #1E2B45;
+  --border-medium: #2A3C60;
+  --border-strong: #3E5482;
+  --border-focus: #06B6D4;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #080C14;
+  
+  /* Brand Accents Neon */
+  --color-cyan: #06B6D4;
+  --color-blue: #3B82F6;
+  --color-violet: #8B5CF6;
+  --color-emerald: #10B981;
+  --color-amber: #F59E0B;
+  --color-rose: #F43F5E;
+  
+  /* Glow & Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-node-hover: 0 14px 32px -4px rgba(6, 182, 212, 0.25);
+  --glow-active: 0 0 20px rgba(6, 182, 212, 0.35);
+  
+  /* Canvas Grid */
+  --grid-dot-color: rgba(255, 255, 255, 0.08);
+}

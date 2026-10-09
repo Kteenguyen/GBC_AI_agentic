@@ -1,0 +1,36 @@
+/* ==============================================================================
+   UX MOBILE & TABLET RESPONSIVE STYLES
+   Touch-First (Touch target >= 44px) & Zero Overflow (max 430px)
+   ============================================================================== */
+
+@media (max-width: 768px) {
+  .mobile-timeline-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .mobile-timeline-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .mobile-timeline-card {
+    min-width: 140px;
+    min-height: 100px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+
+  /* Ensure touch targets >= 44px */
+  .mobile-touch-btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

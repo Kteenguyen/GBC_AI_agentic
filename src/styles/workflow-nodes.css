@@ -1,0 +1,182 @@
+/* ==============================================================================
+   WORKFLOW NODE CARDS & INTERACTION PORTS
+   Next-Gen DevSecOps Cards with LED Status Indicators
+   ============================================================================== */
+
+.node-card-base {
+  position: relative;
+  border-radius: 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.node-card-base:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-node-hover);
+  border-color: var(--border-focus);
+}
+
+/* Sizing presets */
+.node-size-standard {
+  width: 168px;
+  min-height: 124px;
+}
+
+.node-size-compact {
+  width: 144px;
+  min-height: 114px;
+}
+
+.node-size-wide {
+  width: 180px;
+  min-height: 124px;
+}
+
+/* Status variants */
+.node-card-standby {
+  border-color: var(--border-subtle);
+}
+
+.node-card-running {
+  border-color: var(--color-cyan) !important;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35) !important;
+  animation: pulse-node-glow 2s infinite ease-in-out;
+}
+
+.node-card-success {
+  border-color: var(--color-emerald) !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25) !important;
+}
+
+.node-card-failed {
+  border-color: var(--color-rose) !important;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.35) !important;
+  animation: pulse-fail-glow 1.5s infinite ease-in-out;
+}
+
+.node-card-selected {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.3) !important;
+}
+
+/* Node Icon Holder */
+.node-icon-holder {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+}
+
+.node-card-base:hover .node-icon-holder {
+  border-color: var(--border-medium);
+  background-color: var(--bg-surface-hover);
+}
+
+/* Node Typography & Badges */
+.node-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.node-role-chip {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Status Pill */
+.node-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-standby .status-dot {
+  background-color: var(--text-muted);
+}
+
+.status-running .status-dot {
+  background-color: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  animation: pulse-dot 1s infinite alternate;
+}
+
+.status-success .status-dot {
+  background-color: var(--color-emerald);
+  box-shadow: 0 0 8px var(--color-emerald);
+}
+
+.status-failed .status-dot {
+  background-color: var(--color-rose);
+  box-shadow: 0 0 8px var(--color-rose);
+  animation: pulse-dot 0.7s infinite alternate;
+}
+
+/* Keyframe animations */
+@keyframes pulse-node-glow {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(6, 182, 212, 0.5);
+  }
+}
+
+@keyframes pulse-fail-glow {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(244, 63, 94, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(244, 63, 94, 0.55);
+  }
+}
+
+@keyframes pulse-dot {
+  from {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}

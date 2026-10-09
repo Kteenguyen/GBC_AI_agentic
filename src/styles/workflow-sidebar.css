@@ -1,0 +1,120 @@
+/* ==============================================================================
+   WORKFLOW ACTOR SIDEBAR & TOOLBOX
+   Collapsible DevOps Tool Repository
+   ============================================================================== */
+
+.actor-sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 18px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  z-index: 30;
+  overflow: hidden;
+}
+
+.actor-sidebar-header {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-elevated);
+}
+
+/* Category Filter Pills */
+.category-filter-chip {
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.category-filter-chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.category-filter-chip.is-active {
+  color: #FFFFFF;
+  background-color: var(--color-cyan);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+/* Tool Catalog Card in Sidebar */
+.actor-tool-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+  cursor: grab;
+}
+
+.actor-tool-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-focus);
+  background-color: var(--bg-surface-elevated);
+  box-shadow: var(--shadow-sm);
+}
+
+.actor-tool-card:active {
+  cursor: grabbing;
+}
+
+/* Quick Add Button Pills */
+.btn-quick-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-quick-ci {
+  color: #0284C7;
+  background-color: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.2);
+}
+
+.dark .btn-quick-ci {
+  color: #38BDF8;
+  background-color: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.btn-quick-ci:hover {
+  background-color: rgba(2, 132, 199, 0.2);
+}
+
+.btn-quick-cd {
+  color: #7C3AED;
+  background-color: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.dark .btn-quick-cd {
+  color: #C084FC;
+  background-color: rgba(192, 132, 252, 0.12);
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+.btn-quick-cd:hover {
+  background-color: rgba(124, 58, 237, 0.2);
+}
