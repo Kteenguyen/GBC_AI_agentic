@@ -11,7 +11,23 @@ export async function GET() {
     }
     const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
     const config = JSON.parse(raw);
-    return NextResponse.json({ success: true, config, filePath: CONFIG_FILE });
+
+    // Auto-detect OS platform and adjust workspace root if running on macOS or Linux
+    const isDarwin = process.platform === 'darwin';
+    const isLinux = process.platform === 'linux';
+    if ((isDarwin || isLinux) && config.workspace) {
+      config.workspace.platform = isDarwin ? 'macos' : 'linux';
+      if (config.workspace.rootDir?.startsWith('C:\\') || config.workspace.rootDir?.startsWith('C:/')) {
+        config.workspace.rootDir = process.env.WORKFLOW_ROOT || process.cwd();
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      config, 
+      filePath: CONFIG_FILE, 
+      platform: process.platform 
+    });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

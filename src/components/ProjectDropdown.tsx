@@ -11,7 +11,7 @@ import {
   Globe, 
   Folder 
 } from 'lucide-react';
-import { LocalProject } from '@/app/page';
+import { LocalProject } from '@/types/workflow';
 
 interface ProjectDropdownProps {
   projects: LocalProject[];

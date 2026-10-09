@@ -8,14 +8,13 @@ function getWorkspaceRoot(): string {
     return process.env.WORK_ROOT;
   }
   
-  // If current working directory is Workflow or inside Work folder, scan parent Work directory
   const currentDir = process.cwd();
   const parentDir = path.resolve(currentDir, '..');
-  if (fs.existsSync(parentDir) && path.basename(parentDir).toLowerCase() === 'work') {
+  if (fs.existsSync(parentDir) && (path.basename(parentDir).toLowerCase() === 'work' || path.basename(parentDir).toLowerCase() === 'antigravity')) {
     return parentDir;
   }
   
-  if (fs.existsSync('C:\\Users\\ADMIN\\OneDrive\\Documents\\Work')) {
+  if (process.platform === 'win32' && fs.existsSync('C:\\Users\\ADMIN\\OneDrive\\Documents\\Work')) {
     return 'C:\\Users\\ADMIN\\OneDrive\\Documents\\Work';
   }
   

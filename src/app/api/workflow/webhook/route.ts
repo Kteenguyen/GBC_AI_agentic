@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { topologicalSort, DEFAULT_INITIAL_EDGES } from '@/lib/workflowGraphEngine';
+import { emitRealtimeEvent } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
+
+// Bộ nhớ đệm chống trùng lặp Webhook Delivery (Idempotency Guard)
+const processedDeliveries = new Set<string>();
 
 interface WebhookTriggerData {
   branch: string;
@@ -10,6 +15,7 @@ interface WebhookTriggerData {
   authorName: string;
   repoName: string;
   status: string;
+  deliveryId?: string;
   executionOrder: string[];
   pipelineNodes: Array<{
     step: number;
@@ -109,6 +115,46 @@ const PIPELINE_NODE_DEFINITIONS = [
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
+    const headers = req.headers;
+
+    // 1. Xác thực HMAC SHA-256 Signature nếu có Secret cấu hình
+    const webhookSecret = process.env.WEBHOOK_SECRET;
+    const signature = headers.get('x-hub-signature-256');
+
+    if (webhookSecret && signature) {
+      const hmac = crypto.createHmac('sha256', webhookSecret);
+      const digest = 'sha256=' + hmac.update(rawBody).digest('hex');
+      
+      const sigBuffer = Buffer.from(signature);
+      const digestBuffer = Buffer.from(digest);
+
+      if (sigBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(sigBuffer, digestBuffer)) {
+        return NextResponse.json({
+          success: false,
+          error: 'Chữ ký Webhook HMAC SHA-256 không hợp lệ (Signature Mismatch)'
+        }, { status: 401 });
+      }
+    }
+
+    // 2. Chống trùng lặp sự kiện (Idempotency Guard)
+    const deliveryId = headers.get('x-github-delivery') || headers.get('x-delivery-id');
+    if (deliveryId) {
+      if (processedDeliveries.has(deliveryId)) {
+        return NextResponse.json({
+          success: true,
+          message: `[IDEMPOTENCY] Bỏ qua event trùng lặp (Delivery ID: ${deliveryId})`,
+          deliveryId,
+          status: 'DUPLICATE_IGNORED'
+        });
+      }
+      processedDeliveries.add(deliveryId);
+      // Giữ bộ nhớ đệm tối đa 500 deliveries
+      if (processedDeliveries.size > 500) {
+        const first = processedDeliveries.values().next().value;
+        if (first) processedDeliveries.delete(first);
+      }
+    }
+
     let body: any = {};
     if (rawBody) {
       try {
@@ -121,7 +167,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const headers = req.headers;
     const githubEvent = headers.get('x-github-event');
     const gitlabEvent = headers.get('x-gitlab-event');
     const giteaEvent = headers.get('x-gitea-event');
@@ -241,19 +286,23 @@ export async function POST(req: NextRequest) {
       authorName,
       repoName,
       status: 'QUEUED_FOR_EXECUTION',
+      deliveryId: deliveryId || undefined,
       executionOrder,
       pipelineNodes
     };
 
+    // 3. Phát tán sự kiện sang Realtime Event Bus để tự động chạy trên giao diện Web
+    emitRealtimeEvent('gcm_pipeline_triggered', triggerData);
+
     const timestamp = new Date().toISOString();
-    console.log(`[WEBHOOK] [${timestamp}] Received ${eventName} event from ${provider} (${repoName}:${branch}) by ${authorName} [Commit: ${commitId}]`);
 
     return NextResponse.json({
       success: true,
       provider,
       event: eventName,
       receivedAt: timestamp,
-      message: `[WEBHOOK] Đã tiếp nhận thành công push event từ ${provider}. Sẵn sàng kích hoạt 10 nodes pipeline.`,
+      deliveryId,
+      message: `[WEBHOOK] Đã tiếp nhận thành công push event từ ${provider}. Đã phát tín hiệu sang Realtime Event Bus.`,
       triggerData,
       nextAction: {
         executePipelineUrl: '/api/workflow/execute-pipeline',
@@ -282,7 +331,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    title: 'Hướng Dẫn Cấu Hình Webhook CI/CD Pipeline (Global Code DevOps)',
+    title: 'Hướng Dẫn Cấu Hình Webhook CI/CD Pipeline (HMAC SHA-256 & Idempotency Protected)',
     status: 'ACTIVE_LISTENING',
     webhookEndpoint: webhookUrl,
     supportedProviders: [
@@ -308,23 +357,9 @@ export async function GET(req: NextRequest) {
     setupGuide: {
       payloadUrl: webhookUrl,
       contentType: 'application/json',
-      secretToken: 'Tùy chọn đặt trong x-hub-signature-256 hoặc Bearer Token',
+      secretToken: 'Cấu hình trong WEBHOOK_SECRET (tự động verify qua X-Hub-Signature-256)',
       triggerEvents: ['Push events', 'Branch or tag creation'],
       sslVerification: 'Enable SSL verification (Recommended)'
-    },
-    topological10NodesPipeline: [
-      '1. node-dev: Developer Workstation & Prompt Creator',
-      '2. node-github-src: GitHub Source Repository (SSOT)',
-      '3. node-jenkins-ci: Jenkins CI Master Orchestrator',
-      '4. node-owasp: OWASP Dependency-Check (Cổng 1)',
-      '5. node-sonarqube: SonarQube Clean Code Quality Gate (Cổng 2)',
-      '6. node-trivy: Trivy Filesystem & Secret Scanner (Cổng 3)',
-      '7. node-docker: Docker Multi-Stage Build & Registry Push',
-      '8. node-argocd: ArgoCD GitOps Sync Controller',
-      '9. node-prom: Prometheus Metrics Collector & SLA Monitor',
-      '10. node-myapp: MyApp Production Live System'
-    ],
-    testCurlExample: `curl -X POST "${webhookUrl}" -H "Content-Type: application/json" -H "X-GitHub-Event: push" -d "{\\"ref\\":\\"refs/heads/main\\",\\"repository\\":{\\"full_name\\":\\"Kteenguyen/GBC_AI_agentic\\"},\\"head_commit\\":{\\"id\\":\\"7f8a91c28\\",\\"message\\":\\"feat(pipeline): automated trigger test\\",\\"author\\":{\\"name\\":\\"Ktee\\"}}}"`
+    }
   });
 }
-

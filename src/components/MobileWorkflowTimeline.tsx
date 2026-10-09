@@ -8,7 +8,7 @@ import {
   ChevronRight, 
   Layers
 } from 'lucide-react';
-import { WorkflowNode } from '@/app/page';
+import { WorkflowNode } from '@/types/workflow';
 
 interface MobileWorkflowTimelineProps {
   nodes: WorkflowNode[];
